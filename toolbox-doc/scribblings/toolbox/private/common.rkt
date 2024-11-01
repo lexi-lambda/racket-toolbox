@@ -7,7 +7,9 @@
          (for-label gregor
                     (except-in racket/base date? date)
                     racket/contract
+                    racket/lazy-require
                     racket/logging
+                    toolbox/lazy-require
                     toolbox/logging
                     toolbox/printing-block
                     toolbox/who))
@@ -21,7 +23,9 @@
          (for-label (all-from-out gregor
                                   racket/base
                                   racket/contract
+                                  racket/lazy-require
                                   racket/logging
+                                  toolbox/lazy-require
                                   toolbox/logging
                                   toolbox/printing-block
                                   toolbox/who)))
@@ -32,7 +36,8 @@
   (apply tech pre-content #:doc '(lib "scribblings/reference/reference.scrbl")))
 
 
-(define make-toolbox-eval (make-eval-factory '(toolbox/logging
+(define make-toolbox-eval (make-eval-factory '(toolbox/lazy-require
+                                               toolbox/logging
                                                toolbox/printing-block
                                                toolbox/who)))
 
