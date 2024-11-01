@@ -1,0 +1,33 @@
+name: build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        racket-version: [stable]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: Bogdanp/setup-racket@v1.11
+      with:
+        version: ${{ matrix.racket-version }}
+        dest: '$GITHUB_WORKSPACE/racket'
+        sudo: never
+    - name: install
+      run: raco pkg install --installation --auto --link toolbox-{doc,lib}
+    - name: test
+      run: raco test -ep toolbox-{doc,lib}
+    - name: deploy_docs
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && matrix.racket-version == 'stable' }}
+      run: |
+        set -e
+        scribble +m --redirect https://docs.racket-lang.org/local-redirect/index.html \
+          --htmls --dest-name docs toolbox-doc/scribblings/toolbox.scrbl
+        cd docs
+        git init -b gh-pages
+        git config user.name 'GitHub Actions'
+        git config user.email 'lexi.lambda@gmail.com'
+        git add .
+        git commit -m 'Deploy to GitHub Pages'
+        git push --force 'https://lexi-lambda:${{ github.token }}@github.com/${{ github.repository }}' gh-pages
