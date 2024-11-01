@@ -7,4 +7,5 @@ This library provides a collection of miscellaneous Racket utilities that I use 
 
 @local-table-of-contents[]
 
+@include-section["toolbox/syntax.scrbl"]
 @include-section["toolbox/logging.scrbl"]

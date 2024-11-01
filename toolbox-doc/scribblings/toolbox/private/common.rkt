@@ -8,7 +8,8 @@
                     (except-in racket/base date? date)
                     racket/contract
                     racket/logging
-                    toolbox/logging))
+                    toolbox/logging
+                    toolbox/who))
 
 (provide reftech
          make-toolbox-eval
@@ -19,13 +20,15 @@
                                   racket/base
                                   racket/contract
                                   racket/logging
-                                  toolbox/logging)))
+                                  toolbox/logging
+                                  toolbox/who)))
 
 (define (reftech . pre-content)
   (apply tech pre-content #:doc '(lib "scribblings/reference/reference.scrbl")))
 
 
-(define make-toolbox-eval (make-eval-factory '(toolbox/logging)))
+(define make-toolbox-eval (make-eval-factory '(toolbox/logging
+                                               toolbox/who)))
 
 (define-syntax-parse-rule
   (toolbox-examples {~alt {~optional {~seq #:eval eval-e:expr}}
