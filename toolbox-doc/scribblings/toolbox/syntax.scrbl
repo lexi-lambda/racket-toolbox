@@ -4,6 +4,19 @@
 
 @title[#:tag "syntax"]{Syntax}
 
+@section[#:tag "printing-block"]{Automatic printing in blocks}
+@defmodule[toolbox/printing-block]
+
+@defform[(printing-block defn-or-expr ...+)]{
+Like @racket[(let () defn-or-expr #,m...)], but values returned by each expression in the block are printed in the same way as at the top level of a module.
+
+@(toolbox-examples
+  (eval:check (printing-block
+                (+ 1 2 3)
+                (string-upcase "hello")
+                (not #f))
+              #t))}
+
 @section[#:tag "who"]{Context-sensitive @racket[who]}
 @defmodule[toolbox/who]
 

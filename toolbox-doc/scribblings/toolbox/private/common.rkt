@@ -9,9 +9,11 @@
                     racket/contract
                     racket/logging
                     toolbox/logging
+                    toolbox/printing-block
                     toolbox/who))
 
-(provide reftech
+(provide m...
+         reftech
          make-toolbox-eval
          close-eval
          toolbox-examples
@@ -21,13 +23,17 @@
                                   racket/contract
                                   racket/logging
                                   toolbox/logging
+                                  toolbox/printing-block
                                   toolbox/who)))
+
+(define m... (racketmetafont "..."))
 
 (define (reftech . pre-content)
   (apply tech pre-content #:doc '(lib "scribblings/reference/reference.scrbl")))
 
 
 (define make-toolbox-eval (make-eval-factory '(toolbox/logging
+                                               toolbox/printing-block
                                                toolbox/who)))
 
 (define-syntax-parse-rule
