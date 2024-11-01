@@ -60,7 +60,8 @@ Starts a new @reftech{thread} that repeatedly synchronizes on @racket[receiver] 
 
 @(toolbox-examples
   #:eval log-writer-eval
-  (define-root-logger toolbox)
+  (eval:alts (define-root-logger toolbox)
+             (define-root-logger toolbox #:parent #f))
   (define writer (spawn-pretty-log-writer
                   (make-log-receiver toolbox-logger 'debug)))
   (eval:alts (log-toolbox-info "an informational message")
