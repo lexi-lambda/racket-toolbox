@@ -57,6 +57,7 @@ Equivalent to @racket[(adjust-timezone (jd->moment/utc v) tz)].}
 @defproc[(jd->moment/utc [v rational?]) moment?]{
 Equivalent to @racket[(with-timezone (jd->datetime v) UTC)].}
 
+@include-section["toolbox/db.scrbl"]
 @include-section["toolbox/web.scrbl"]
 
 @index-section[]

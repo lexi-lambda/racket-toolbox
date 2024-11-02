@@ -12,6 +12,7 @@
     "gregor-lib"
     "racket-doc"
     "scribble-lib"
+    ["toolbox-db-lib" #:version "1.0"]
     ["toolbox-lib" #:version "1.0"]
     ["toolbox-web-lib" #:version "1.0"]
     "web-server-doc"
