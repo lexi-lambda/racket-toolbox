@@ -7,7 +7,7 @@
 
 @(define (log-id-level-fns)
    (define id @racketvarfont{id})
-   @list{@racketplainfont{@|id|-logger}, @racketplainfont{log-@|id|-fatal}, @racketplainfont{log-@|id|-error}, @racketplainfont{log-@|id|-warning}, @racketplainfont{log-@|id|-info}, and @racketplainfont{log-@|id|-debug}})
+   @list{@racketplainfont{log-@|id|-fatal}, @racketplainfont{log-@|id|-error}, @racketplainfont{log-@|id|-warning}, @racketplainfont{log-@|id|-info}, and @racketplainfont{log-@|id|-debug}})
 
 @defform[#:kind "provide syntax"
          (logger-out id)]{
