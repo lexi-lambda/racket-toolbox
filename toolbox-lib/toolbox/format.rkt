@@ -1,8 +1,14 @@
 #lang racket/base
 
-(require racket/format)
+(require racket/contract
+         racket/format
+         racket/match)
 
-(provide ~r*)
+(provide ~r*
+         (contract-out
+          [ordinal (->* [exact-nonnegative-integer?]
+                        [#:word? any/c]
+                        string?)]))
 
 ;; -----------------------------------------------------------------------------
 
@@ -28,3 +34,28 @@
       #:groups groups
       #:group-sep group-sep
       #:decimal-sep decimal-sep))
+
+(define (ordinal n #:word? [use-word? #f])
+  (cond
+    [(and use-word? (<= 1 n 10))
+     (vector-ref #("first"
+                   "second"
+                   "third"
+                   "fourth"
+                   "fifth"
+                   "sixth"
+                   "seventh"
+                   "eighth"
+                   "ninth"
+                   "tenth")
+                 (sub1 n))]
+    [else
+     (string-append
+      (~r* n)
+      (match (remainder n 100)
+        [(or 11 12 13) "th"]
+        [_ (match (remainder n 10)
+             [1 "st"]
+             [2 "nd"]
+             [3 "rd"]
+             [_ "th"])]))]))
