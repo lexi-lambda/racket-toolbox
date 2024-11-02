@@ -120,10 +120,10 @@
   (define-splicing-syntax-class eval-body
     #:description #f
     #:attributes [e]
-    (pattern {~seq #:hidden hidden:expr body:expr}
-      #:attr e #'(eval:alts body (begin hidden body)))
     (pattern {~seq body:expr #:hidden hidden:expr}
       #:attr e #'(eval:alts body (begin0 body hidden)))
+    (pattern {~seq #:hidden hidden:expr body:expr}
+      #:attr e #'(eval:alts body (begin hidden body)))
     (pattern body:expr
       #:attr e #'body)))
 

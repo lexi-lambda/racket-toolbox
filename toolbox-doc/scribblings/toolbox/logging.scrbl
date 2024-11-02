@@ -64,14 +64,10 @@ Starts a new @reftech{thread} that repeatedly synchronizes on @racket[receiver] 
              (define-root-logger toolbox #:parent #f))
   (define writer (spawn-pretty-log-writer
                   (make-log-receiver toolbox-logger 'debug)))
-  (eval:alts (log-toolbox-info "an informational message")
-             (begin
-               (log-toolbox-info "an informational message")
-               (flush-log-writer writer)))
-  (eval:alts (log-toolbox-fatal "a fatal message!!")
-             (begin
-               (log-toolbox-fatal "a fatal message!!")
-               (close-log-writer writer)))
+  (log-toolbox-info "an informational message")
+  #:hidden (flush-log-writer writer)
+  (log-toolbox-fatal "a fatal message!!")
+  #:hidden (flush-log-writer writer)
   (close-log-writer writer))
 
 Because log messages are written asynchronously, most programs should explicitly call @racket[close-log-writer] to ensure all log messages are flushed before exiting. Otherwise, messages logged immediately prior to termination may be lost.
@@ -86,10 +82,8 @@ If @racket[process-name] is not @racket[#f], it is written after the topic and l
                (define writer (spawn-pretty-log-writer (make-log-receiver toolbox-logger 'debug)
                                                        #:process-name 'worker))
                writer))
-  (eval:alts (log-toolbox-info "message from a worker process")
-             (begin
-               (log-toolbox-info "message from a worker process")
-               (close-log-writer writer))))
+  (log-toolbox-info "message from a worker process")
+  #:hidden (close-log-writer writer))
 
 If the third element of the result of @racket[receiver] implements @racket[gen:moment-provider], @racket[->moment] is used to extract a timestamp for the message. Otherwise, the timestamp is based on the moment the message is received, rather than when the message was logged, which can be substantially less accurate. The logging forms defined by @racket[define-log-message-transformers] send a @racket[log-message-info] structure with each message, which @emph{do} implement @racket[gen:moment-provider] and supply a reliable timestamp.
 
@@ -103,10 +97,8 @@ If @racket[millis?] is not @racket[#f], timestamps are written with millisecond 
                (define writer (spawn-pretty-log-writer (make-log-receiver toolbox-logger 'debug)
                                                        #:millis? #t))
                writer))
-  (eval:alts (log-toolbox-info "high-precision message")
-             (begin
-               (log-toolbox-info "high-precision message")
-               (close-log-writer writer))))
+  (log-toolbox-info "high-precision message")
+  #:hidden (close-log-writer writer))
 
 If @racket[color?] is not @racket[#f], @hyperlink["https://en.wikipedia.org/wiki/ANSI_escape_code"]{ANSI escape codes} are included in the formatted output to colorize the output for log levels other than @racket['info].}
 @(close-eval log-writer-eval)
