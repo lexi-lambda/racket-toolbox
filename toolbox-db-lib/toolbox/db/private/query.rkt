@@ -91,6 +91,8 @@
 
   (match (dbsystem-name (connection-dbsystem db))
     ['sqlite3
+     (when analyze?
+       (check-sqlite3-stmt-scanstatus-enabled who "cannot analyze query"))
      (define ffi-stmt
        (and (or explain? analyze?)
             (let ()
@@ -106,11 +108,36 @@
        (print-query-plan-explanation root-node out)
        (log-toolbox:db:query-info "~a" (string-trim (get-output-string out))))
 
-     (when (or explain? analyze?)
-       (sqlite3_stmt_scanstatus_reset ffi-stmt))
-     (when explain?
-       (log-query-plan-explanation
-        (build-query-plan-explanation/scan-status ffi-stmt)))
+     (cond
+       [(or analyze? (and explain? (sqlite3-stmt-scanstatus-enabled?)))
+        (sqlite3_stmt_scanstatus_reset ffi-stmt)
+        ;; Use scanstatus for ordinary `explain?` when available, since it includes estimates.
+        (when explain?
+          (log-query-plan-explanation
+           (build-query-plan-explanation/scan-status ffi-stmt)))]
+       [explain?
+        ;; Fall back to running an EXPLAIN QUERY PLAN query if scanstatus is not available.
+        (cond
+          ;; Try to use `sqlite3_stmt_explain` to avoid a re-prepare if possible.
+          [sqlite3_stmt_explain
+           (when (= (sqlite3_stmt_isexplain ffi-stmt) SQLITE_EXPLAIN_NORMAL)
+             (define eqp-rows
+               (dynamic-wind
+                (λ ()
+                  (sqlite3_reset ffi-stmt)
+                  (sqlite3_stmt_explain ffi-stmt SQLITE_EXPLAIN_QUERY_PLAN))
+                (λ ()
+                  (db:query-rows db p-stmt))
+                (λ ()
+                  (sqlite3_reset ffi-stmt)
+                  (sqlite3_stmt_explain ffi-stmt SQLITE_EXPLAIN_NORMAL))))
+             (log-query-plan-explanation
+              (build-query-plan-explanation eqp-rows)))]
+          ;; Otherwise, just re-prepare the query.
+          [else
+           (log-query-plan-explanation
+            (build-query-plan-explanation
+             (db:query-rows db (string-append "EXPLAIN QUERY PLAN\n" (send p-stmt get-stmt)))))])])
 
      (define result (really-do-query))
 

@@ -6,6 +6,7 @@
          racket/string
          toolbox/format
          toolbox/list
+         toolbox/who
          "ffi.rkt")
 
 (provide (contract-out
@@ -39,7 +40,9 @@
   (eqp-root #f nodes))
 
 ;; Builds a query plan explanation using sqlite3_stmt_scanstatus_v2.
-(define (build-query-plan-explanation/scan-status stmt)
+(define/who (build-query-plan-explanation/scan-status stmt)
+  (check-sqlite3-stmt-scanstatus-enabled who "operation not supported")
+
   (define (stat* idx op)
     (sqlite3_stmt_scanstatus_v2 stmt idx op SQLITE_SCANSTAT_COMPLEX))
   (define (neg->false v)

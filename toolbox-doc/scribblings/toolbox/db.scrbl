@@ -91,17 +91,19 @@ Like @id-from-db[query], but uses the @tech{current database connection} by defa
 
 If @racket[log?] is not @racket[#f], the SQL text of @racket[stmt] is logged before the query is executed, and the query’s (wall clock) execution time is logged after the execution completes.
 
-If @racket[explain?] is not @racket[#f], a textual representation of the database system’s query plan is logged before the query is executed. Currently, this option is only supported with SQLite, and only when SQLite was compiled with the @tt{SQLITE_ENABLE_STMT_SCANSTATUS} compile-time option; an @racket[exn:fail:unsupported] exception will be raised with other database systems.
+If @racket[explain?] is not @racket[#f], a textual representation of the database system’s query plan is logged before the query is executed. Currently, this option is only supported with SQLite; an @racket[exn:fail:unsupported] exception will be raised with other database systems.
 
-If @racket[analyze?] is not @racket[#f], the query plan is logged in the same way as for @racket[explain?], but the plan is logged @emph{after} executing the query, and it is annotated with performance information collected during the query’s execution. Like @racket[explain?], this option is currently only supported with SQLite.
+If @racket[analyze?] is not @racket[#f], the query plan is logged in the same way as for @racket[explain?], but the plan is logged @emph{after} executing the query, and it is annotated with performance information collected during the query’s execution. Like @racket[explain?], this option is currently only supported with SQLite, but @racket[analyze?] additionally requires that SQLite was compiled with the @tt{SQLITE_ENABLE_STMT_SCANSTATUS} compile-time option. The @racket[sqlite3-stmt-scanstatus-enabled?] function can be used to check whether this is the case.
 
 @(toolbox-examples
   #:hidden (define log-writer
              (spawn-pretty-log-writer (make-log-receiver toolbox:db-logger 'debug)))
   (current-db (sqlite3-connect #:database 'memory))
+  (define can-analyze? (sqlite3-stmt-scanstatus-enabled?))
   (query
    #:log? #t
-   #:analyze? #t
+   #:explain? (not can-analyze?)
+   #:analyze? can-analyze?
    (string-join
     '("WITH RECURSIVE"
       "  fib(i,a,b) AS"
@@ -172,3 +174,9 @@ Returns @racket[#t] if @racket[v] is an @racket[exn:fail:sql] exception and @rac
 
 @defproc[(exn:fail:sql:constraint? [v any/c]) boolean?]{
 Returns @racket[#t] if @racket[v] is an @racket[exn:fail:sql] exception and @racket[(exn:fail:sql-sqlstate v)] is @racket['constraint]. Otherwise, returns @racket[#f].}
+
+@section[#:tag "db:sqlite3"]{SQLite}
+@defmodule[toolbox/db/sqlite3]
+
+@defproc[(sqlite3-stmt-scanstatus-enabled?) boolean?]{
+Returns @racket[#t] if the loaded SQLite library was compiled with @tt{SQLITE_ENABLE_STMT_SCANSTATUS}, which is required if query profiling is enabled in @racket[query] via the @racket[#:analyze?] option. Otherwise, returns @racket[#f].}

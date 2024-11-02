@@ -18,6 +18,7 @@
                     toolbox/boolean
                     toolbox/box
                     toolbox/db/base
+                    toolbox/db/sqlite3
                     toolbox/format
                     toolbox/gregor
                     toolbox/lazy-require
@@ -51,6 +52,7 @@
                                   toolbox/boolean
                                   toolbox/box
                                   toolbox/db/base
+                                  toolbox/db/sqlite3
                                   toolbox/format
                                   toolbox/gregor
                                   toolbox/lazy-require
@@ -101,6 +103,7 @@
                                                toolbox/boolean
                                                toolbox/box
                                                toolbox/db/base
+                                               toolbox/db/sqlite3
                                                toolbox/format
                                                toolbox/gregor
                                                toolbox/lazy-require
