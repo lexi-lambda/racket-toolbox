@@ -11,6 +11,7 @@
                     racket/lazy-require
                     racket/list
                     racket/logging
+                    racket/match
                     racket/string
                     toolbox/box
                     toolbox/format
@@ -20,7 +21,9 @@
                     toolbox/logging
                     toolbox/printing-block
                     toolbox/string
-                    toolbox/who))
+                    toolbox/web/dispatch
+                    toolbox/who
+                    web-server/dispatch))
 
 (provide m...
          reftech
@@ -35,6 +38,7 @@
                                   racket/lazy-require
                                   racket/list
                                   racket/logging
+                                  racket/match
                                   racket/string
                                   toolbox/box
                                   toolbox/format
@@ -44,7 +48,9 @@
                                   toolbox/logging
                                   toolbox/printing-block
                                   toolbox/string
-                                  toolbox/who)))
+                                  toolbox/web/dispatch
+                                  toolbox/who
+                                  web-server/dispatch)))
 
 (define m... (racketmetafont "..."))
 
@@ -52,7 +58,8 @@
   (apply tech pre-content #:doc '(lib "scribblings/reference/reference.scrbl")))
 
 
-(define make-toolbox-eval (make-eval-factory '(toolbox/box
+(define make-toolbox-eval (make-eval-factory '(racket/match
+                                               toolbox/box
                                                toolbox/format
                                                toolbox/gregor
                                                toolbox/lazy-require
@@ -60,7 +67,9 @@
                                                toolbox/logging
                                                toolbox/printing-block
                                                toolbox/string
-                                               toolbox/who)))
+                                               toolbox/web/dispatch
+                                               toolbox/who
+                                               web-server/dispatch)))
 
 (define-syntax-parse-rule
   (toolbox-examples {~alt {~optional {~seq #:eval eval-e:expr}}

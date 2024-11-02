@@ -15,9 +15,9 @@ jobs:
         dest: '$GITHUB_WORKSPACE/racket'
         sudo: never
     - name: install
-      run: raco pkg install --installation --auto --link toolbox-{doc,lib}
+      run: raco pkg install --installation --auto --link toolbox-{doc,lib,web-lib}
     - name: test
-      run: raco test -ep toolbox-{doc,lib}
+      run: raco test -ep toolbox-{doc,lib,web-lib}
     - name: deploy_docs
       if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && matrix.racket-version == 'stable' }}
       run: |
