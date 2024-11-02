@@ -119,7 +119,7 @@ Forces the given @tech{log writer} to write any pending messages, blocking until
 
 This function is not generally necessary, as @racket[spawn-pretty-log-writer] calls @racket[flush-output] after writing each log message it receives @emph{regardless} of whether @racket[flush-log-writer] is used. The @emph{only} effect of @racket[flush-log-writer] is to block the calling thread until the log writer thread has had a chance to receive and write any pending messages. However, this can rarely be useful if the calling thread writes to the same output port and wants to avoid output being interleaved, for example.}
 
-@section[#:tag "toolbox-logger"]{Toolbox Logger}
+@section[#:tag "toolbox-logger"]{Toolbox logger}
 @defmodule[toolbox/logger]
 
 @defthing[toolbox-logger logger?]{
