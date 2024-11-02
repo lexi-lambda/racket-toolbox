@@ -10,6 +10,7 @@ This library provides a collection of miscellaneous Racket utilities that I use 
 @local-table-of-contents[]
 
 @include-section["toolbox/syntax.scrbl"]
+@include-section["toolbox/data.scrbl"]
 @include-section["toolbox/logging.scrbl"]
 
 @section[#:tag "gregor"]{Gregor}

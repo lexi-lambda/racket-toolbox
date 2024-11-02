@@ -9,6 +9,7 @@
                     racket/contract
                     racket/lazy-require
                     racket/logging
+                    toolbox/box
                     toolbox/gregor
                     toolbox/lazy-require
                     toolbox/logging
@@ -26,6 +27,7 @@
                                   racket/contract
                                   racket/lazy-require
                                   racket/logging
+                                  toolbox/box
                                   toolbox/gregor
                                   toolbox/lazy-require
                                   toolbox/logging
@@ -38,7 +40,8 @@
   (apply tech pre-content #:doc '(lib "scribblings/reference/reference.scrbl")))
 
 
-(define make-toolbox-eval (make-eval-factory '(toolbox/gregor
+(define make-toolbox-eval (make-eval-factory '(toolbox/box
+                                               toolbox/gregor
                                                toolbox/lazy-require
                                                toolbox/logging
                                                toolbox/printing-block
