@@ -13,6 +13,33 @@ This library provides a collection of miscellaneous Racket utilities that I use 
 @include-section["toolbox/data.scrbl"]
 @include-section["toolbox/logging.scrbl"]
 
+@section[#:tag "format"]{Formatting}
+@defmodule[toolbox/format]
+
+@defproc[(~r* [x rational?]
+              [#:sign sign
+               (or/c #f '+ '++ 'parens
+                     (let ([ind (or/c string? (list/c string? string?))])
+                       (list/c ind ind ind)))
+               #f]
+              [#:base base (or/c (integer-in 2 36) (list/c 'up (integer-in 2 36))) 10]
+              [#:precision precision
+               (or/c exact-nonnegative-integer?
+                     (list/c '= exact-nonnegative-integer?))
+               6]
+              [#:notation notation
+               (or/c 'positional 'exponential
+                     (-> rational? (or/c 'positional 'exponential)))
+               'positional]
+              [#:format-exponent format-exponent (or/c #f string? (-> exact-integer? string?)) #f]
+              [#:min-width min-width exact-positive-integer? 1]
+              [#:pad-string pad-string non-empty-string? " "]
+              [#:groups groups (non-empty-listof exact-positive-integer?) '(3)]
+              [#:group-sep group-sep string? ","]
+              [#:decimal-sep decimal-sep string? "."])
+         string?]{
+Like @racket[~r] from @racketmodname[racket/format], except that the default value of @racket[group-sep] is @racket[","] instead of @racket[""], so numbers include thousands separators by default.}
+
 @section[#:tag "gregor"]{Gregor}
 @defmodule[toolbox/gregor]
 

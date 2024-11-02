@@ -7,10 +7,13 @@
          (for-label gregor
                     (except-in racket/base date? date)
                     racket/contract
+                    racket/format
                     racket/lazy-require
                     racket/list
                     racket/logging
+                    racket/string
                     toolbox/box
+                    toolbox/format
                     toolbox/gregor
                     toolbox/lazy-require
                     toolbox/list
@@ -28,10 +31,13 @@
          (for-label (all-from-out gregor
                                   racket/base
                                   racket/contract
+                                  racket/format
                                   racket/lazy-require
                                   racket/list
                                   racket/logging
+                                  racket/string
                                   toolbox/box
+                                  toolbox/format
                                   toolbox/gregor
                                   toolbox/lazy-require
                                   toolbox/list
@@ -47,6 +53,7 @@
 
 
 (define make-toolbox-eval (make-eval-factory '(toolbox/box
+                                               toolbox/format
                                                toolbox/gregor
                                                toolbox/lazy-require
                                                toolbox/list
