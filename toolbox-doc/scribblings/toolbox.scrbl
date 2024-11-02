@@ -58,3 +58,5 @@ Equivalent to @racket[(adjust-timezone (jd->moment/utc v) tz)].}
 Equivalent to @racket[(with-timezone (jd->datetime v) UTC)].}
 
 @include-section["toolbox/web.scrbl"]
+
+@index-section[]
