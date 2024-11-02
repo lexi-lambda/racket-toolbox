@@ -22,6 +22,7 @@
                     toolbox/gregor
                     toolbox/lazy-require
                     toolbox/list
+                    toolbox/logger
                     toolbox/logging
                     toolbox/printing-block
                     toolbox/string
@@ -54,6 +55,7 @@
                                   toolbox/gregor
                                   toolbox/lazy-require
                                   toolbox/list
+                                  toolbox/logger
                                   toolbox/logging
                                   toolbox/printing-block
                                   toolbox/string
@@ -103,6 +105,7 @@
                                                toolbox/gregor
                                                toolbox/lazy-require
                                                toolbox/list
+                                               toolbox/logger
                                                toolbox/logging
                                                toolbox/printing-block
                                                toolbox/string

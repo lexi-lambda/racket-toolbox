@@ -165,7 +165,7 @@ A parameter that controls whether functions like @racket[query] should log each 
 Returns the number of database rows that were changed, inserted, or deleted by the most recently completed @tt{INSERT}, @tt{DELETE}, or @tt{UPDATE} statement. Currently only supported with SQLite; an @racket[exn:fail:unsupported] exception will be raised with other database systems.}
 
 @defthing[toolbox:db-logger logger?]{
-A @reftech{logger} used by various functions in @racketmodname[toolbox/db/base].}
+A @reftech{logger} used by various functions in @racketmodname[toolbox/db/base]. Its parent logger is @racket[toolbox-logger].}
 
 @defproc[(exn:fail:sql:busy? [v any/c]) boolean?]{
 Returns @racket[#t] if @racket[v] is an @racket[exn:fail:sql] exception and @racket[(exn:fail:sql-sqlstate v)] is @racket['busy]. Otherwise, returns @racket[#f].}
