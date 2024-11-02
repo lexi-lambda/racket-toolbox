@@ -16,6 +16,7 @@
                     toolbox/list
                     toolbox/logging
                     toolbox/printing-block
+                    toolbox/string
                     toolbox/who))
 
 (provide m...
@@ -36,6 +37,7 @@
                                   toolbox/list
                                   toolbox/logging
                                   toolbox/printing-block
+                                  toolbox/string
                                   toolbox/who)))
 
 (define m... (racketmetafont "..."))
@@ -50,6 +52,7 @@
                                                toolbox/list
                                                toolbox/logging
                                                toolbox/printing-block
+                                               toolbox/string
                                                toolbox/who)))
 
 (define-syntax-parse-rule

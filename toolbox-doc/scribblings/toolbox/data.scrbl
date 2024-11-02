@@ -67,7 +67,16 @@ Equivalent to @racket[(if test-expr (list (let () body #,m...)) '())].}
 Equivalent to @racket[(if test-expr '() (list (let () body #,m...)))].}
 
 @defform[(when/list* test-expr body ...+)]{
-Equivalent to @racket[(if test-expr (let () body #,m...) '())], except that the last @racket[body] form must evaluate to a list, or an @racket[exn:fail:contract] exception is raised.}
+Equivalent to @racket[(if test-expr (let () body #,m...) '())], except that the last @racket[body] form must evaluate to a @reftech{list}, or an @racket[exn:fail:contract] exception is raised.}
 
 @defform[(unless/list* test-expr body ...+)]{
-Equivalent to @racket[(if test-expr '() (let () body #,m...))], except that the last @racket[body] form must evaluate to a list, or an @racket[exn:fail:contract] exception is raised.}
+Equivalent to @racket[(if test-expr '() (let () body #,m...))], except that the last @racket[body] form must evaluate to a @reftech{list}, or an @racket[exn:fail:contract] exception is raised.}
+
+@section[#:tag "string"]{Strings}
+@defmodule[toolbox/string]
+
+@defform[(when/string test-expr body ...+)]{
+Equivalent to @racket[(if test-expr (let () body #,m...) "")], except that the last @racket[body] form must evaluate to a @reftech{string}, or an @racket[exn:fail:contract] exception is raised.}
+
+@defform[(unless/string test-expr body ...+)]{
+Equivalent to @racket[(if test-expr "" (let () body #,m...))], except that the last @racket[body] form must evaluate to a @reftech{string}, or an @racket[exn:fail:contract] exception is raised.}
