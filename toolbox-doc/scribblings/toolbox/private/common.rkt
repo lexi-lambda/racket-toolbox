@@ -8,10 +8,12 @@
                     (except-in racket/base date? date)
                     racket/contract
                     racket/lazy-require
+                    racket/list
                     racket/logging
                     toolbox/box
                     toolbox/gregor
                     toolbox/lazy-require
+                    toolbox/list
                     toolbox/logging
                     toolbox/printing-block
                     toolbox/who))
@@ -26,10 +28,12 @@
                                   racket/base
                                   racket/contract
                                   racket/lazy-require
+                                  racket/list
                                   racket/logging
                                   toolbox/box
                                   toolbox/gregor
                                   toolbox/lazy-require
+                                  toolbox/list
                                   toolbox/logging
                                   toolbox/printing-block
                                   toolbox/who)))
@@ -43,6 +47,7 @@
 (define make-toolbox-eval (make-eval-factory '(toolbox/box
                                                toolbox/gregor
                                                toolbox/lazy-require
+                                               toolbox/list
                                                toolbox/logging
                                                toolbox/printing-block
                                                toolbox/who)))

@@ -36,3 +36,38 @@ Equivalent to @racket[(box-cas-update! box add1)].}
 
 @defproc[(box-sub1! [box (and/c box? (not/c immutable?) (not/c impersonator?))]) number?]{
 Equivalent to @racket[(box-cas-update! box sub1)].}
+
+@section[#:tag "list"]{Lists}
+@defmodule[toolbox/list]
+
+@defproc[(take-at-most [lst list?] [n exact-nonnegative-integer?]) list?]{
+Like @racket[take], except if @racket[lst] has fewer than @racket[n] elements, @racket[take-at-most] returns @racket[lst] instead of raising an exception.
+
+@(toolbox-examples
+  (eval:check (take-at-most '(1 2 3 4 5) 3) '(1 2 3))
+  (eval:check (take-at-most '(1 2) 3) '(1 2)))}
+
+@defproc[(split-at-most [lst list?] [n exact-nonnegative-integer?])
+         (values list? list?)]{
+Like @racket[split-at], except if @racket[lst] has fewer than @racket[n] elements, @racket[split-at-most] returns @racket[(values lst '())] instead of raising an exception.
+
+@(toolbox-examples
+  (eval:check (split-at-most '(1 2 3 4 5) 3)
+              (values '(1 2 3) '(4 5)))
+  (eval:check (split-at-most '(1 2) 3)
+              (values '(1 2) '())))}
+
+@defproc[(maybe->list [v any/c]) list?]{
+If @racket[v] is @racket[#f], returns @racket['()], otherwise returns @racket[(list v)].}
+
+@defform[(when/list test-expr body ...+)]{
+Equivalent to @racket[(if test-expr (list (let () body #,m...)) '())].}
+
+@defform[(unless/list test-expr body ...+)]{
+Equivalent to @racket[(if test-expr '() (list (let () body #,m...)))].}
+
+@defform[(when/list* test-expr body ...+)]{
+Equivalent to @racket[(if test-expr (let () body #,m...) '())], except that the last @racket[body] form must evaluate to a list, or an @racket[exn:fail:contract] exception is raised.}
+
+@defform[(unless/list* test-expr body ...+)]{
+Equivalent to @racket[(if test-expr '() (let () body #,m...))], except that the last @racket[body] form must evaluate to a list, or an @racket[exn:fail:contract] exception is raised.}
