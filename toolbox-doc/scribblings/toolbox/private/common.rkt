@@ -13,6 +13,7 @@
                     racket/logging
                     racket/match
                     racket/string
+                    toolbox/boolean
                     toolbox/box
                     toolbox/format
                     toolbox/gregor
@@ -40,6 +41,7 @@
                                   racket/logging
                                   racket/match
                                   racket/string
+                                  toolbox/boolean
                                   toolbox/box
                                   toolbox/format
                                   toolbox/gregor
@@ -59,6 +61,7 @@
 
 
 (define make-toolbox-eval (make-eval-factory '(racket/match
+                                               toolbox/boolean
                                                toolbox/box
                                                toolbox/format
                                                toolbox/gregor

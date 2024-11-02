@@ -6,6 +6,12 @@
 
 @title[#:tag "data"]{Data Structures}
 
+@section[#:tag "boolean"]{Booleans}
+@defmodule[toolbox/boolean]
+
+@defproc[(->boolean [v any/c]) boolean?]{
+Returns @racket[#f] if @racket[v] is @racket[#f], otherwise returns @racket[#t].}
+
 @section[#:tag "box"]{Boxes}
 @defmodule[toolbox/box]
 
