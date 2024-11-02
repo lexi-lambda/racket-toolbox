@@ -15,7 +15,7 @@ jobs:
         dest: '$GITHUB_WORKSPACE/racket'
         sudo: never
     - name: install
-      run: raco pkg install --installation --auto --link toolbox-{lib,db-lib,web-lib,doc}
+      run: raco pkg install --installation --auto --link toolbox-{lib,db-lib,db-x86_64-linux,web-lib,doc}
     - name: test
       run: raco test -ep toolbox-{lib,db-lib,web-lib,doc}
     - name: deploy_docs

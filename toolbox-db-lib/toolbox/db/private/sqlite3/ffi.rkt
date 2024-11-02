@@ -5,7 +5,7 @@
          racket/match)
 
 (provide sqlite3_statement?
-         (all-defined-out))
+         (protect-out (all-defined-out)))
 
 (define SQLITE_SCANSTAT_COMPLEX  1)
 

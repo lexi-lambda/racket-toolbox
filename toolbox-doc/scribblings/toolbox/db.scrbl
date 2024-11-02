@@ -91,7 +91,7 @@ Like @id-from-db[query], but uses the @tech{current database connection} by defa
 
 If @racket[log?] is not @racket[#f], the SQL text of @racket[stmt] is logged before the query is executed, and the query’s (wall clock) execution time is logged after the execution completes.
 
-If @racket[explain?] is not @racket[#f], a textual representation of the database system’s query plan is logged before the query is executed. Currently, this option is only supported with SQLite; an @racket[exn:fail:unsupported] exception will be raised with other database systems.
+If @racket[explain?] is not @racket[#f], a textual representation of the database system’s query plan is logged before the query is executed. Currently, this option is only supported with SQLite, and only when SQLite was compiled with the @tt{SQLITE_ENABLE_STMT_SCANSTATUS} compile-time option; an @racket[exn:fail:unsupported] exception will be raised with other database systems.
 
 If @racket[analyze?] is not @racket[#f], the query plan is logged in the same way as for @racket[explain?], but the plan is logged @emph{after} executing the query, and it is annotated with performance information collected during the query’s execution. Like @racket[explain?], this option is currently only supported with SQLite.
 
