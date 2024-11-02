@@ -22,6 +22,7 @@
                     toolbox/format
                     toolbox/gregor
                     toolbox/lazy-require
+                    toolbox/lift
                     toolbox/list
                     toolbox/logger
                     toolbox/logging
@@ -56,6 +57,7 @@
                                   toolbox/format
                                   toolbox/gregor
                                   toolbox/lazy-require
+                                  toolbox/lift
                                   toolbox/list
                                   toolbox/logger
                                   toolbox/logging
@@ -107,6 +109,7 @@
                                                toolbox/format
                                                toolbox/gregor
                                                toolbox/lazy-require
+                                               toolbox/lift
                                                toolbox/list
                                                toolbox/logger
                                                toolbox/logging

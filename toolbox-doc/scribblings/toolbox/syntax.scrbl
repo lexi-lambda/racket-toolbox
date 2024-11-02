@@ -25,6 +25,13 @@ Like @racket[lazy-require], but the imported bindings need not be functions. Ins
   (get-special-value)
   (get-special-value))}
 
+@section[#:tag "lift"]{Lifting expressions}
+@defmodule[toolbox/lift]
+
+@defform[(#%lift expr)
+         #:contracts ([expr any/c])]{
+When expanded as an expression, @racket[#%lift] lifts @racket[expr] to the module top level using @racket[syntax-local-lift-expression] and expands to the fresh identifier it was bound to.}
+
 @section[#:tag "printing-block"]{Automatic printing in blocks}
 @defmodule[toolbox/printing-block]
 
