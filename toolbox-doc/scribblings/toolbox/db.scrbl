@@ -144,7 +144,7 @@ If @racket[analyze?] is not @racket[#f], the query plan is logged in the same wa
                      [#:log? log? any/c (current-log-db-queries?)]
                      [#:explain? explain? any/c (current-explain-db-queries?)]
                      [#:analyze? analyze? any/c (current-analyze-db-queries?)])
-         result-ctc]{
+         (listof vector?)]{
 @(make-query-proc-flow @id-from-db[query-rows])}
 
 @defqueryproc[query-list list?]
