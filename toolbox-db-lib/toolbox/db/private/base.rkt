@@ -17,6 +17,8 @@
           [exn:fail:sql:busy? predicate/c]
           [exn:fail:sql:constraint? predicate/c]
 
+          [map-sql-nullable (-> (-> any/c any/c) any/c any/c)]
+
           [in-transaction? (->* [] [#:db connection?] boolean?)]
           [call-with-transaction
            (->* [(-> any)]
@@ -55,6 +57,11 @@
 
 (define exn:fail:sql:busy? (make-exn:fail:sql-pred 'busy))
 (define exn:fail:sql:constraint? (make-exn:fail:sql-pred 'constraint))
+
+(define (map-sql-nullable f v)
+  (if (sql-null? v)
+      v
+      (f v)))
 
 ;; -----------------------------------------------------------------------------
 

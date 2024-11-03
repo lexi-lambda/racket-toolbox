@@ -166,6 +166,13 @@ A parameter that controls whether functions like @racket[query] should log each 
          exact-nonnegative-integer?]{
 Returns the number of database rows that were changed, inserted, or deleted by the most recently completed @tt{INSERT}, @tt{DELETE}, or @tt{UPDATE} statement. Currently only supported with SQLite; an @racket[exn:fail:unsupported] exception will be raised with other database systems.}
 
+@defproc[(map-sql-nullable [proc (-> any/c any/c)] [v any/c]) any/c]{
+If @racket[v] is @racket[sql-null], returns @racket[sql-null], otherwise returns @racket[(proc v)].
+
+@(toolbox-examples
+  (eval:check (map-sql-nullable add1 1) 2)
+  (eval:check (map-sql-nullable add1 sql-null) sql-null))}
+
 @defthing[toolbox:db-logger logger?]{
 A @reftech{logger} used by various functions in @racketmodname[toolbox/db/base]. Its parent logger is @racket[toolbox-logger].}
 

@@ -14,6 +14,8 @@
           exn:fail:sql:busy?
           exn:fail:sql:constraint?
 
+          map-sql-nullable
+
           current-db
           get-db
 
