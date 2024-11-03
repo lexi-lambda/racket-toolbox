@@ -175,6 +175,106 @@ Returns @racket[#t] if @racket[v] is an @racket[exn:fail:sql] exception and @rac
 @defproc[(exn:fail:sql:constraint? [v any/c]) boolean?]{
 Returns @racket[#t] if @racket[v] is an @racket[exn:fail:sql] exception and @racket[(exn:fail:sql-sqlstate v)] is @racket['constraint]. Otherwise, returns @racket[#f].}
 
+@section[#:tag "db:sql"]{Formatting SQL}
+@defmodule[toolbox/db/sql]
+
+@defproc[(~sql [v pre-sql?] ...) string?]{
+Converts each @racket[v] argument to a string then concatenates the results. The arguments are converted according to the following rules:
+
+@itemlist[
+ @item{If @racket[v] is a @reftech{string}, it is used directly.}
+ @item{If @racket[v] is a @reftech{symbol}, it is formatted as a SQL identifier using @racket[sql:id].}
+ @item{If @racket[v] is an @reftech[#:key "exact number"]{exact} @reftech{integer}, it is converted using @racket[number->string].}
+ @item{If @racket[v] is any other @reftech{rational number}, it is converted to a @reftech{flonum} using @racket[real->double-flonum], then converted to a string using @racket[number->string].}
+ @item{If @racket[v] is @racket[sql-null], it is converted to the string @racket["NULL"].}]
+
+@(toolbox-examples
+  (~sql "SELECT " 'id " FROM " 'comment " WHERE " 'rating " > " 0.75))
+
+The @racket[~sql] function is especially useful when used @seclink["reader" #:doc '(lib "scribblings/scribble/scribble.scrbl")]|{@ syntax}| via the @racketmodname[at-exp] language.
+
+Example:
+
+@codeblock[#:keep-lang-line? #f]|{
+ #lang at-exp racket/base
+ @~sql{SELECT name FROM user WHERE id IN @sql:tuple*[user-ids]}}|}
+
+@defproc[(sql:id [name (or/c symbol? string?)]) string?]{
+Quotes @racket[name] as a SQL identifier by surrounding it with double quotes. If @racket[name] contains double quotes, they are escaped by doubling.
+
+@(toolbox-examples
+  (eval:check (sql:id "hello") "\"hello\"")
+  (eval:check (sql:id "weird\"id") "\"weird\"\"id\""))}
+
+@defproc[(sql:string [name (or/c symbol? string?)]) string?]{
+Quotes @racket[name] as a SQL string literal by surrounding it with single quotes. If @racket[name] contains single quotes, they are escaped by doubling.
+
+@(toolbox-examples
+  (eval:check (sql:string "hello") "'hello'")
+  (eval:check (sql:string "it's") "'it''s'"))}
+
+@defproc[(sql:seq [v pre-sql?] ...) string?]{
+Converts each @racket[v] to a string using @racket[~sql], then concatenates the results with @racket[","] between consecutive items.
+
+@(toolbox-examples
+  (eval:check (sql:seq 1 2 3) "1,2,3"))}
+
+@defproc[(sql:seq* [v pre-sql?] ... [vs (listof pre-sql?)]) string?]{
+Like @racket[sql:seq], but the last argument is used as a list of arguments for @racket[sql:seq]. In other words, the relationship between @racket[sql:seq] and @racket[sql:seq*] is the same as the one between @racket[string-append] and @racket[string-append*].
+
+@(toolbox-examples
+  (eval:check (sql:seq* 1 2 '(3 4)) "1,2,3,4"))}
+
+@defproc[(sql:tuple [v pre-sql?] ...) string?]{
+Like @racket[sql:seq], but the resulting string is additionally wrapped in parentheses.
+
+@(toolbox-examples
+  (eval:check (sql:tuple 1 2 3) "(1,2,3)"))}
+
+@defproc[(sql:tuple* [v pre-sql?] ... [vs (listof pre-sql?)]) string?]{
+Like @racket[sql:tuple], but the last argument is used as a list of arguments for @racket[sql:tuple]. In other words, the relationship between @racket[sql:tuple] and @racket[sql:tuple*] is the same as the one between @racket[string-append] and @racket[string-append*].
+
+@(toolbox-examples
+  (eval:check (sql:tuple* 1 2 '(3 4)) "(1,2,3,4)"))}
+
+@defproc[(query:bag [vs (listof pre-sql?)]) string?]{
+Builds a SQL query that returns rows of exactly one column, where each element of @racket[vs] is an expression that supplies the value of one of the rows.
+
+@(toolbox-examples
+  (query:bag '(1 2 3))
+  (query:bag '()))
+
+In a sense, @racket[query:bag] is the inverse of @racket[query-list]. However, because the query contains no @tt{ORDER BY} clause, the order of the resulting rows cannot be guaranteed. If the order of @racket[vs] is important, @racket[query:indexed-list] should be used instead.}
+
+@defproc[(query:indexed-list [vs (listof pre-sql?)]) string?]{
+Like @racket[query:bag], but the resulting query contains two columns. The first column is a (zero-based) index corresponding to the index of each element @racket[_v] in @racket[vs], while the second column is the value of the expression @racket[_v] itself.
+
+@(toolbox-examples
+  #:hidden (current-db (sqlite3-connect #:database 'memory))
+  (query:indexed-list '(1 2 3))
+  (query:indexed-list '())
+  (eval:check (query-list
+               (~sql "WITH nums(i,n) AS (" (query:indexed-list (range 10)) ")\n"
+                     "SELECT n*n FROM nums ORDER BY i"))
+              '(0 1 4 9 16 25 36 49 64 81)))}
+
+@defproc[(query:rows [rows (listof (vectorof pre-sql?))]
+                     [#:columns num-columns (or/c exact-nonnegative-integer? #f) #f])
+         string?]{
+Builds a SQL query that returns a row for each element @racket[_row] of @racket[rows], where each element of @racket[_row] is an expression that supplies the value of one of the columns in the row. Each @racket[_row] must have the same length.
+
+If @racket[num-columns] is not @racket[#f], it supplies the number of columns the query should return. Otherwise, the number of columns is inferred from the length of the elements of @racket[rows]. If @racket[num-columns] is @racket[#f] and no rows are provided, an @racket[exn:fail:contract] exception is raised.
+
+@(toolbox-examples
+  (query:rows '(#(1 2) #(3 4) #(5 6)))
+  (query:rows '() #:columns 2)
+  (eval:error (query:rows '())))}
+
+@defproc[(pre-sql? [v any/c]) boolean?]{
+Returns @racket[#t] if @racket[v] is a @deftech{pre-SQL} value: a raw SQL @reftech{string}, a @reftech{symbol}, a @reftech{rational number}, or @racket[sql-null]. Otherwise, returns @racket[#f].
+
+Pre-SQL values can be converted to SQL strings using @racket[~sql].}
+
 @section[#:tag "db:sqlite3"]{SQLite}
 @defmodule[toolbox/db/sqlite3]
 

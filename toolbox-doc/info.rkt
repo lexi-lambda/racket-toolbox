@@ -8,9 +8,12 @@
 (define deps
   '("base"))
 (define build-deps
-  '("gregor-doc"
+  '("db-doc"
+    "db-lib"
+    "gregor-doc"
     "gregor-lib"
     "racket-doc"
+    "scribble-doc"
     "scribble-lib"
     ["toolbox-db-lib" #:version "1.0"]
     ["toolbox-lib" #:version "1.0"]

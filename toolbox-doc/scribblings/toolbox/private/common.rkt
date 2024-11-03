@@ -18,6 +18,7 @@
                     toolbox/boolean
                     toolbox/box
                     toolbox/db/base
+                    toolbox/db/sql
                     toolbox/db/sqlite3
                     toolbox/format
                     toolbox/gregor
@@ -53,6 +54,7 @@
                                   toolbox/boolean
                                   toolbox/box
                                   toolbox/db/base
+                                  toolbox/db/sql
                                   toolbox/db/sqlite3
                                   toolbox/format
                                   toolbox/gregor
@@ -69,10 +71,10 @@
 
 (define m... (racketmetafont "..."))
 
-(define (reftech . pre-content)
-  (apply tech pre-content #:doc '(lib "scribblings/reference/reference.scrbl")))
-(define (dbtech . pre-content)
-  (apply tech pre-content #:doc '(lib "db/scribblings/db.scrbl")))
+(define (reftech #:key [key #f] . pre-content)
+  (apply tech pre-content #:key key #:doc '(lib "scribblings/reference/reference.scrbl")))
+(define (dbtech #:key [key #f] . pre-content)
+  (apply tech pre-content #:key key #:doc '(lib "db/scribblings/db.scrbl")))
 
 (define (id-from-modname-elem id-elem mod-name-elem)
   (list id-elem " from " mod-name-elem))
@@ -100,11 +102,13 @@
       (make-id-referencer-transformers (quote-syntax mod-name*)))))
 
 (define make-toolbox-eval (make-eval-factory '(db/sqlite3
+                                               racket/list
                                                racket/match
                                                racket/string
                                                toolbox/boolean
                                                toolbox/box
                                                toolbox/db/base
+                                               toolbox/db/sql
                                                toolbox/db/sqlite3
                                                toolbox/format
                                                toolbox/gregor
