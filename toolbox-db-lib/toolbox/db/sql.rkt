@@ -1,16 +1,19 @@
 #lang racket/base
 
-(require db/base
+(require (for-syntax racket/base)
          racket/contract
          racket/format
          racket/list
          racket/match
          racket/string
+         syntax/parse/define
          threading
+         toolbox/db/base
          toolbox/format
          toolbox/who)
 
-(provide (contract-out
+(provide ~stmt
+         (contract-out
           [sql:id (-> (or/c symbol? string?) string?)]
           [sql:string (-> string? string?)]
 
@@ -58,6 +61,10 @@
        [(? sql-null?)      "NULL"])]
     [vs
      (string-append* (map ~sql vs))]))
+
+(define-syntax-parse-rule (~stmt arg ...)
+  #:declare arg (expr/c #'pre-sql?)
+  (lifted-statement (~sql arg.c ...)))
 
 (define (sql:seq . vs)
   (string-join (map ~sql vs) ","))

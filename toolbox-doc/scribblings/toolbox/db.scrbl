@@ -173,6 +173,12 @@ If @racket[v] is @racket[sql-null], returns @racket[sql-null], otherwise returns
   (eval:check (map-sql-nullable add1 1) 2)
   (eval:check (map-sql-nullable add1 sql-null) sql-null))}
 
+@defform[(lifted-statement expr)
+         #:contracts ([expr (or/c string? (-> dbsystem? string?))])]{
+Equivalent to @racket[(#%lift (virtual-statement expr))]. That is, @racket[lifted-statement] is like @racket[virtual-statement], except that it is implicitly lifted to the top of the enclosing module (so @racket[expr] may not reference local variables). This allows a @dbtech{virtual statement} to be declared inline, where it is used.
+
+Also see @racket[~stmt], which combines @racket[lifted-statement] and @racket[~sql].}
+
 @defthing[toolbox:db-logger logger?]{
 A @reftech{logger} used by various functions in @racketmodname[toolbox/db/base]. Its parent logger is @racket[toolbox-logger].}
 
@@ -205,6 +211,10 @@ Example:
 @codeblock[#:keep-lang-line? #f]|{
  #lang at-exp racket/base
  @~sql{SELECT name FROM user WHERE id IN @sql:tuple*[user-ids]}}|}
+
+@defform[(~stmt expr ...)
+         #:contracts ([expr pre-sql?])]{
+Equivalent to @racket[(lifted-statement (~sql expr #,m...))]. The @racket[expr] forms may not reference local variables.}
 
 @defproc[(sql:id [name (or/c symbol? string?)]) string?]{
 Quotes @racket[name] as a SQL identifier by surrounding it with double quotes. If @racket[name] contains double quotes, they are escaped by doubling.

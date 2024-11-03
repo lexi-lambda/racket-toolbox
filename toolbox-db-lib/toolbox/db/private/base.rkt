@@ -1,15 +1,19 @@
 #lang racket/base
 
-(require db/base
+(require (for-syntax racket/base)
+         db/base
          (prefix-in db: db/base)
          racket/contract
          racket/match
+         syntax/parse/define
+         toolbox/lift
          toolbox/logging
          toolbox/who
          toolbox/private/logger)
 
 (provide (logger-out toolbox:db)
          define-toolbox:db-logger
+         lifted-statement
          (contract-out
           [current-db (parameter/c (or/c connection? #f))]
           [get-db (->* [symbol?] connection?)]
@@ -62,6 +66,12 @@
   (if (sql-null? v)
       v
       (f v)))
+
+(define virtual-statement-gen/c (or/c string? (-> dbsystem? string?)))
+
+(define-syntax-parse-rule (lifted-statement e)
+  #:declare e (expr/c #'virtual-statement-gen/c)
+  (#%lift (virtual-statement e.c)))
 
 ;; -----------------------------------------------------------------------------
 
