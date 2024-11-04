@@ -361,12 +361,12 @@ If the @racket[#:resolve] table option is provided, the procedure produced by @r
                            [#:resolve resolve-proc
                             (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
                             #f])
-         (->* [any/c] [#:who symbol?] void?)]{
+         (->* [any/c] [#:who symbol? #:resolve? any/c] void?)]{
 Builds a deleter procedure that accepts a primary key for the SQL table given by @racket[table-name] and executes the following query:
 
 @nested[#:style 'code-inset]{@verbatim{DELETE FROM @racket[(sql:id table-name)] WHERE id = ?}}
 
-If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the argument provided to the deleter procedure. The call to @racket[resolve-proc] and the @tt{DELETE} statement are both executed within the same database transaction.
+If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the argument provided to the deleter procedure unless @racket[#:resolve? #f] is supplied. The call to @racket[resolve-proc] and the @tt{DELETE} statement are both executed within the same database transaction.
 
 The @racket[who] argument is used as the name of the deleter procedure, as returned by @racket[object-name], and it is used in error messages reported by the deleter procedure. It is also passed to @racket[resolve-proc], if provided, via the @racket[#:who] keyword argument.}
 
@@ -377,14 +377,14 @@ The @racket[who] argument is used as the name of the deleter procedure, as retur
                            (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
                            #f]
                           [#:convert convert-proc (-> any/c any/c) values])
-         (->* [any/c] [#:who symbol?] any/c)]{
+         (->* [any/c] [#:who symbol? #:resolve? any/c] any/c)]{
 Builds a getter procedure that accepts a primary key for the SQL table given by @racket[table-name] and executes the following query:
 
 @nested[#:style 'code-inset]{@verbatim{SELECT @racket[(sql:id field-name)] FROM @racket[(sql:id table-name)] WHERE id = ?}}
 
 The @racket[convert-proc] argument is applied to the result of the @tt{SELECT} statement to produce a result for the getter procedure.
 
-If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the argument provided to the getter procedure. The call to @racket[resolve-proc] and the @tt{SELECT} statement are both executed within the same database transaction.
+If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the argument provided to the getter procedure unless @racket[#:resolve? #f] is supplied. The call to @racket[resolve-proc] and the @tt{SELECT} statement are both executed within the same database transaction.
 
 The @racket[who] argument is used as the name of the getter procedure, as returned by @racket[object-name], and it is used in error messages reported by the getter procedure. It is also passed to @racket[resolve-proc], if provided, via the @racket[#:who] keyword argument.}
 
@@ -395,14 +395,14 @@ The @racket[who] argument is used as the name of the getter procedure, as return
                            (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
                            #f]
                           [#:convert convert-proc (-> any/c any/c) values])
-         (->* [any/c any/c] [#:who symbol?] void?)]{
+         (->* [any/c any/c] [#:who symbol? #:resolve? any/c] void?)]{
 Builds a setter procedure that accepts a primary key and a value for the SQL table and column given by @racket[table-name] and @racket[field-name] and executes the following query:
 
 @nested[#:style 'code-inset]{@verbatim{UPDATE @racket[(sql:id table-name)] SET @racket[(sql:id field-name)] = ? WHERE id = ?}}
 
 The @racket[convert-proc] argument is applied to the second argument of the of the setter procedure to produce a value to be used as the first parameter of the @tt{UPDATE} statement.
 
-If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the first argument provided to the setter procedure. The call to @racket[resolve-proc] and the @tt{UPDATE} statement are both executed within the same database transaction.
+If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the first argument provided to the setter procedure unless @racket[#:resolve? #f] is supplied. The call to @racket[resolve-proc] and the @tt{UPDATE} statement are both executed within the same database transaction.
 
 The @racket[who] argument is used as the name of the setter procedure, as returned by @racket[object-name], and it is used in error messages reported by the setter procedure. It is also passed to @racket[resolve-proc], if provided, via the @racket[#:who] keyword argument.}
 

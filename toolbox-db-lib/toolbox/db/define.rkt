@@ -36,9 +36,6 @@
 (define resolver/c (or/c (-> any/c #:who symbol? id/c) #f))
 (define convert/c (-> any/c any/c))
 
-(define (maybe-resolve resolve-ref ref #:who who)
-  (if resolve-ref (resolve-ref ref #:who who) ref))
-
 (define (sqlite-statement who str)
   (virtual-statement
    (λ (sys)
@@ -54,11 +51,13 @@
                           #:resolve [resolve-ref #f])
   (define stmt (sqlite-statement who (~sql "DELETE FROM " table-name " WHERE id = ?")))
   (procedure-rename
-   (λ (ref #:who [who who])
+   (λ (ref #:who [who who] #:resolve? [resolve? #t])
      (call-with-transaction/retry
       #:option 'immediate
       (λ ()
-        (query-exec stmt (maybe-resolve resolve-ref ref #:who who)))))
+        (query-exec stmt (if (and resolve? resolve-ref)
+                             (resolve-ref ref #:who who)
+                             ref)))))
    who))
 
 (define (make-sql-getter #:who who
@@ -68,10 +67,12 @@
                          #:convert [convert-value values])
   (define stmt (sqlite-statement who (~sql "SELECT " field-name " FROM " table-name " WHERE id = ?")))
   (procedure-rename
-   (λ (ref #:who [who who])
+   (λ (ref #:who [who who] #:resolve? [resolve? #t])
      (call-with-transaction/retry
       (λ ()
-        (convert-value (query-value stmt (maybe-resolve resolve-ref ref #:who who))))))
+        (convert-value (query-value stmt (if (and resolve? resolve-ref)
+                                             (resolve-ref ref #:who who)
+                                             ref))))))
    who))
 
 (define (make-sql-setter #:who who
@@ -81,11 +82,15 @@
                          #:convert [convert-value values])
   (define stmt (sqlite-statement who (~sql "UPDATE " table-name " SET " field-name " = ?2 WHERE id = ?1")))
   (procedure-rename
-   (λ (ref value #:who [who who])
+   (λ (ref value #:who [who who] #:resolve? [resolve? #t])
      (call-with-transaction/retry
       #:option 'immediate
       (λ ()
-        (query-exec stmt (maybe-resolve resolve-ref ref #:who who) (convert-value value)))))
+        (query-exec stmt
+                    (if (and resolve? resolve-ref)
+                        (resolve-ref ref #:who who)
+                        ref)
+                    (convert-value value)))))
    who))
 
 ;; -----------------------------------------------------------------------------
