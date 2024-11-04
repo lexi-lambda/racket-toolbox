@@ -7,7 +7,7 @@
 
 (define deps
   '("base"
-    "db-lib"
+    ["db-lib" #:version "1.10"]
     "gregor-lib"
     "threading-lib"
     ["toolbox-lib" #:version "1.0"]))

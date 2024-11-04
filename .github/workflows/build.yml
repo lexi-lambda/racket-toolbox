@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        racket-version: [stable]
+        racket-version: [current]
     steps:
     - uses: actions/checkout@v4
     - uses: Bogdanp/setup-racket@v1.11
@@ -19,7 +19,7 @@ jobs:
     - name: test
       run: raco test -ep toolbox-{lib,db-lib,web-lib,doc}
     - name: deploy_docs
-      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && matrix.racket-version == 'stable' }}
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && matrix.racket-version == 'current' }}
       run: |
         set -e
         scribble +m --redirect https://docs.racket-lang.org/local-redirect/index.html \
