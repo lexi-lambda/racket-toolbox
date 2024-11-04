@@ -8,9 +8,9 @@
          racket/string
          syntax/parse/define
          threading
-         toolbox/db/base
          toolbox/format
-         toolbox/who)
+         toolbox/who
+         "base.rkt")
 
 (provide ~stmt
          (contract-out

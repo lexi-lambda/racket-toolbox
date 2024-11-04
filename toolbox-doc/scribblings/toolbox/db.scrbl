@@ -4,7 +4,9 @@
    (require "private/common.rkt")
    (define-id-referencer db db/base))
 
-@title[#:tag "db"]{Database}
+@title[#:tag "db" #:style 'toc]{Database}
+
+@local-table-of-contents[]
 
 @section[#:tag "db:base"]{Extended DB API}
 @defmodule[toolbox/db/base]
@@ -292,8 +294,132 @@ Returns @racket[#t] if @racket[v] is a @deftech{pre-SQL} value: a raw SQL @refte
 
 Pre-SQL values can be converted to SQL strings using @racket[~sql].}
 
+@section[#:tag "db:define"]{Defining SQL accessors}
+@defmodule[toolbox/db/define]
+
+In addition to the bindings documented in this section, the @racketmodname[toolbox/db/define] module also re-exports @racket[field] from @racketmodname[racket/class], which is recognized as part of the syntax of @racket[define-sql-table].
+
+@defform[#:literals [field]
+         (define-sql-table table-name-id
+           table-option ...
+           (field field-name-id
+             field-option ...)
+           ...)
+         #:grammar ([table-option (code:line #:sql-name table-name-expr)
+                                  (code:line #:resolve resolve-expr)
+                                  (code:line #:deleter maybe-name-id)]
+                    [field-option (code:line #:sql-name field-name-expr)
+                                  (code:line #:getter maybe-name-id)
+                                  (code:line #:setter maybe-name-id)
+                                  (code:line #:convert sql->racket-expr racket->sql-expr)]
+                    [table-name-expr name-expr]
+                    [field-name-expr name-expr]
+                    [maybe-name-id (code:line)
+                                   name-id])
+         #:contracts ([name-expr symbol?]
+                      [resolve-expr (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)]
+                      [sql->racket-expr (-> any/c any/c)]
+                      [racket->sql-expr (-> any/c any/c)])]{
+Defines functions for performing simple SQL queries against a SQL table.
+
+The name of the SQL table is given by the result of @racket[table-name-expr]. If no @racket[table-name-expr] is provided, the SQL table name is inferred from @racket[table-name-id] by replacing all occurrences of @litchar{-} with @litchar{_} and replacing a trailing @litchar{?} with the prefix @litchar{is_}. For example, if @racket[table-name-id] were @tt{user-friend?}, the inferred SQL name would be @tt{is_user_friend}.
+
+If the @racket[#:deleter name-id] option is provided, @racket[name-id] is defined as a deleter procedure produced by @racket[make-sql-deleter]. If @racket[#:deleter] is provided with no @racket[name-id], the name @racketplainfont{delete-@racket[table-name-id]!} is used, instead.
+
+Each provided @racket[field] clause controls generation of getter and setter procedures for individual fields (columns) of the table. The SQL name of each field is given by @racket[field-name-expr]. If no @racket[field-name-expr] is provided, the SQL name is inferred from @racket[field-name-id] in the same way the table name may be inferred from @racket[table-name-id].
+
+If the @racket[#:getter name-id] option is provided for a field, @racket[name-id] is defined as a getter procedure produced by @racket[make-sql-getter]. If @racket[#:getter] is provided with no @racket[name-id], the name @racketplainfont{@racket[table-name-id]-@racket[field-name-id]} is used, instead.
+
+Likewise, if the @racket[#:setter name-id] option is provided for a field, @racket[name-id] is defined as a setter procedure produced by @racket[make-sql-setter]. If @racket[#:setter] is provided with no @racket[name-id], the name @racketplainfont{set-@racket[table-name-id]-@racket[field-name-id]!} is used, instead.
+
+If the @racket[#:convert] option is provided for a field, the @racket[sql->racket-expr] and @racket[racket->sql-expr] expressions are used as the @racket[#:convert] arguments to @racket[make-sql-getter] and @racket[make-sql-setter], respectively.
+
+If the @racket[#:resolve] table option is provided, the procedure produced by @racket[resolve-expr] is used as the @racket[#:resolve] argument to @racket[make-sql-deleter], @racket[make-sql-getter], and @racket[make-sql-setter].
+
+@(toolbox-examples
+  (current-db (sqlite3-connect #:database 'memory))
+  (query-exec
+   (~sql "CREATE TABLE user"
+         "( id       INTEGER NOT NULL PRIMARY KEY"
+         ", name     TEXT    NOT NULL"
+         ", is_admin INTEGER NOT NULL DEFAULT (0)"
+         "           CHECK (is_admin IN (0, 1)) )"))
+  (define-sql-table user
+    (field name #:getter #:setter)
+    (field admin? #:getter #:setter
+      #:convert integer->boolean boolean->integer))
+  (query-exec
+   (~sql "INSERT INTO user(id, name) VALUES (1, 'Alyssa'), (2, 'Ben')"))
+  (eval:check (user-name 1) "Alyssa")
+  (eval:check (user-name 2) "Ben")
+  (set-user-admin?! 1 #t)
+  (eval:check (user-admin? 1) #t)
+  (eval:check (user-admin? 2) #f))}
+
+@defproc[(make-sql-deleter [#:table table-name symbol?]
+                           [#:who who symbol?]
+                           [#:resolve resolve-proc
+                            (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
+                            #f])
+         (->* [any/c] [#:who symbol?] void?)]{
+Builds a deleter procedure that accepts a primary key for the SQL table given by @racket[table-name] and executes the following query:
+
+@nested[#:style 'code-inset]{@verbatim{DELETE FROM @racket[(sql:id table-name)] WHERE id = ?}}
+
+If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the argument provided to the deleter procedure. The call to @racket[resolve-proc] and the @tt{DELETE} statement are both executed within the same database transaction.
+
+The @racket[who] argument is used as the name of the deleter procedure, as returned by @racket[object-name], and it is used in error messages reported by the deleter procedure. It is also passed to @racket[resolve-proc], if provided, via the @racket[#:who] keyword argument.}
+
+@defproc[(make-sql-getter [#:table table-name symbol?]
+                          [#:field field-name symbol?]
+                          [#:who who symbol?]
+                          [#:resolve resolve-proc
+                           (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
+                           #f]
+                          [#:convert convert-proc (-> any/c any/c) values])
+         (->* [any/c] [#:who symbol?] any/c)]{
+Builds a getter procedure that accepts a primary key for the SQL table given by @racket[table-name] and executes the following query:
+
+@nested[#:style 'code-inset]{@verbatim{SELECT @racket[(sql:id field-name)] FROM @racket[(sql:id table-name)] WHERE id = ?}}
+
+The @racket[convert-proc] argument is applied to the result of the @tt{SELECT} statement to produce a result for the getter procedure.
+
+If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the argument provided to the getter procedure. The call to @racket[resolve-proc] and the @tt{SELECT} statement are both executed within the same database transaction.
+
+The @racket[who] argument is used as the name of the getter procedure, as returned by @racket[object-name], and it is used in error messages reported by the getter procedure. It is also passed to @racket[resolve-proc], if provided, via the @racket[#:who] keyword argument.}
+
+@defproc[(make-sql-setter [#:table table-name symbol?]
+                          [#:field field-name symbol?]
+                          [#:who who symbol?]
+                          [#:resolve resolve-proc
+                           (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
+                           #f]
+                          [#:convert convert-proc (-> any/c any/c) values])
+         (->* [any/c any/c] [#:who symbol?] void?)]{
+Builds a setter procedure that accepts a primary key and a value for the SQL table and column given by @racket[table-name] and @racket[field-name] and executes the following query:
+
+@nested[#:style 'code-inset]{@verbatim{UPDATE @racket[(sql:id table-name)] SET @racket[(sql:id field-name)] = ? WHERE id = ?}}
+
+The @racket[convert-proc] argument is applied to the second argument of the of the setter procedure to produce a value to be used as the first parameter of the @tt{UPDATE} statement.
+
+If @racket[resolve-proc] is not @racket[#f], it is used to compute a primary key from the first argument provided to the setter procedure. The call to @racket[resolve-proc] and the @tt{UPDATE} statement are both executed within the same database transaction.
+
+The @racket[who] argument is used as the name of the setter procedure, as returned by @racket[object-name], and it is used in error messages reported by the setter procedure. It is also passed to @racket[resolve-proc], if provided, via the @racket[#:who] keyword argument.}
+
 @section[#:tag "db:sqlite3"]{SQLite}
 @defmodule[toolbox/db/sqlite3]
 
 @defproc[(sqlite3-stmt-scanstatus-enabled?) boolean?]{
 Returns @racket[#t] if the loaded SQLite library was compiled with @tt{SQLITE_ENABLE_STMT_SCANSTATUS}, which is required if query profiling is enabled in @racket[query] via the @racket[#:analyze?] option. Otherwise, returns @racket[#f].}
+
+@defproc[(boolean->integer [v any/c]) (or/c 0 1)]{
+If @racket[v] is @racket[#f], returns @racket[0], otherwise returns @racket[1].}
+
+@defproc[(integer->boolean [v (or/c 0 1)]) boolean?]{
+If @racket[v] is @racket[0], returns @racket[#f], otherwise returns @racket[#t].}
+
+@defproc[(->posix/integer [v datetime-provider?]) exact-integer?]{
+Equivalent to @racket[(floor (->posix v))].}
+
+@defproc[(->jd/double [v datetime-provider?]) (and/c rational? flonum?)]{
+Equivalent to @racket[(real->double-flonum (->jd v))].}

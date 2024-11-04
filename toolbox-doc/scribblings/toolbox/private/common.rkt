@@ -18,6 +18,7 @@
                     toolbox/boolean
                     toolbox/box
                     toolbox/db/base
+                    toolbox/db/define
                     toolbox/db/sql
                     toolbox/db/sqlite3
                     toolbox/format
@@ -54,6 +55,7 @@
                                   toolbox/boolean
                                   toolbox/box
                                   toolbox/db/base
+                                  toolbox/db/define
                                   toolbox/db/sql
                                   toolbox/db/sqlite3
                                   toolbox/format
@@ -108,6 +110,7 @@
                                                toolbox/boolean
                                                toolbox/box
                                                toolbox/db/base
+                                               toolbox/db/define
                                                toolbox/db/sql
                                                toolbox/db/sqlite3
                                                toolbox/format
