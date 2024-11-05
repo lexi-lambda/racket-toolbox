@@ -119,11 +119,14 @@
                   [option option])
         (if (<= retries-left 0)
             (db:call-with-transaction db thunk #:isolation isolation #:option option)
-            (with-handlers* ([exn:fail:sql:busy?
-                              (λ (exn)
-                                (sleep retry-delay)
-                                (retry (sub1 retries-left)
-                                       (match option
-                                         ['deferred 'immediate]
-                                         [_         option])))])
+            (with-handlers*
+                ([exn:fail:sql:busy?
+                  (λ (exn)
+                    (sleep retry-delay)
+                    (retry (sub1 retries-left)
+                           (match* {(dbsystem-name (connection-dbsystem db)) option}
+                             [{'sqlite3 (or #f 'deferred)}
+                              'immediate]
+                             [{_ _}
+                              option])))])
               (db:call-with-transaction db thunk #:isolation isolation #:option option))))))
