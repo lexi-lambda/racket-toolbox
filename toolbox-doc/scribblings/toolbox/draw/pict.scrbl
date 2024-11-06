@@ -267,12 +267,12 @@ A contract that accepts @deftech{pict finder} procedures like @racket[lt-find]. 
 
 @defproc[(pict-when [show? any/c]
                     [p pict?]
-                    [#:launder? launder? #f])
+                    [#:launder? launder? any/c #f])
          pict?]{
 Like @racket[(show p show?)], except if @racket[show?] is @racket[#f] and @racket[launder?] is not @racket[#f], @racket[launder] is additionally applied to the result.}
 
 @defproc[(pict-unless [hide? any/c]
                       [p pict?]
-                      [#:launder? launder? #f])
+                      [#:launder? launder? any/c #f])
          pict?]{
 Like @racket[(hide p hide?)], except that if @racket[hide?] and @racket[launder?] are both not @racket[#f], @racket[launder] is additionally applied to the result.}
