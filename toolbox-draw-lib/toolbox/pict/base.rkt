@@ -18,10 +18,10 @@
          (contract-out [pict-finder/c chaperone-contract?]
                        [offset-find (-> pict-finder/c rational? rational? pict-finder/c)]
 
+                       [pict-path? flat-contract?]
                        [ppath-cons (-> (or/c pict? symbol?) pict-path? pict-path?)]
                        [ppath-append (-> pict-path? pict-path? pict-path?)]
 
-                       [pict-path? flat-contract?]
                        [find-child (-> pict? pict-path? tagless-pict-path?)]
                        [find-children (-> pict? pict-path? (listof tagless-pict-path?))]
 

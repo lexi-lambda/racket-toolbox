@@ -242,13 +242,22 @@ Returns @racket[#t] if @racket[v] is a @deftech{tagless pict path}, which is eit
 
 The @racket[tagless-pict-path?] function is actually the same binding as @id-from-pict[pict-path?], re-exported under a different name.}
 
-@defproc[(ppath-cons [p (or/c pict? symbol?)] [path pict-path?]) pict-path?]{
-Prefixes @racket[path] with @racket[p] to form a larger @tech{pict path}.
+@defproc[(ppath-cons [elem (or/c pict? symbol?)] [path pict-path?]) pict-path?]{
+Prefixes @racket[path] with @racket[elem] to form a larger @tech{pict path}.
 
 @(toolbox-examples
   (eval:check (ppath-cons 'a '()) 'a)
   (eval:check (ppath-cons 'a 'b) '(a b))
   (eval:check (ppath-cons 'a '(b c)) '(a b c)))}
+
+@defproc[(ppath-append [path-a pict-path?] [path-b pict-path?]) pict-path?]{
+Appends @racket[path-a] and @racket[path-b] to form a larger @tech{pict path}.
+
+@(toolbox-examples
+  (eval:check (ppath-append 'a 'b) '(a b))
+  (eval:check (ppath-append '(a b) 'c) '(a b c))
+  (eval:check (ppath-append 'a '(b c)) '(a b c))
+  (eval:check (ppath-append '(a b) '(c d)) '(a b c d)))}
 
 @defproc[(find-child [p pict?] [path pict-path?]) tagless-pict-path?]{
 Finds a child @pictech{pict} with the given @tech{pict path} and returns a (possibly more specific) @tech{tagless pict path} to it. If there are multiple child picts with the given path, one is selected arbitrarily. If there are no child picts with the given path, an @racket[exn:fail:contract] exception is raised.}
