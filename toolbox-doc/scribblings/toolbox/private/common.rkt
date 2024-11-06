@@ -8,15 +8,19 @@
          (for-label (only-in db sqlite3-connect)
                     gregor
                     (except-in racket/base date? date)
+                    racket/class
                     racket/contract
+                    racket/draw
                     racket/format
                     racket/lazy-require
                     racket/list
                     racket/logging
                     racket/match
+                    racket/math
                     racket/string
                     toolbox/boolean
                     toolbox/box
+                    toolbox/color
                     toolbox/db/base
                     toolbox/db/define
                     toolbox/db/sql
@@ -28,6 +32,7 @@
                     toolbox/list
                     toolbox/logger
                     toolbox/logging
+                    toolbox/pict
                     toolbox/printing-block
                     toolbox/string
                     toolbox/web/dispatch
@@ -37,6 +42,8 @@
 (provide m...
          reftech
          dbtech
+         drawtech
+         pictech
          define-id-referencer
          make-toolbox-eval
          close-eval
@@ -45,15 +52,19 @@
          (for-label (all-from-out db
                                   gregor
                                   racket/base
+                                  racket/class
                                   racket/contract
+                                  racket/draw
                                   racket/format
                                   racket/lazy-require
                                   racket/list
                                   racket/logging
                                   racket/match
+                                  racket/math
                                   racket/string
                                   toolbox/boolean
                                   toolbox/box
+                                  toolbox/color
                                   toolbox/db/base
                                   toolbox/db/define
                                   toolbox/db/sql
@@ -65,6 +76,7 @@
                                   toolbox/list
                                   toolbox/logger
                                   toolbox/logging
+                                  toolbox/pict
                                   toolbox/printing-block
                                   toolbox/string
                                   toolbox/web/dispatch
@@ -77,6 +89,10 @@
   (apply tech pre-content #:key key #:doc '(lib "scribblings/reference/reference.scrbl")))
 (define (dbtech #:key [key #f] . pre-content)
   (apply tech pre-content #:key key #:doc '(lib "db/scribblings/db.scrbl")))
+(define (drawtech #:key [key #f] . pre-content)
+  (apply tech pre-content #:key key #:doc '(lib "scribblings/draw/draw.scrbl")))
+(define (pictech #:key [key #f] . pre-content)
+  (apply tech pre-content #:key key #:doc '(lib "pict/scribblings/pict.scrbl")))
 
 (define (id-from-modname-elem id-elem mod-name-elem)
   (list id-elem " from " mod-name-elem))
@@ -104,11 +120,15 @@
       (make-id-referencer-transformers (quote-syntax mod-name*)))))
 
 (define make-toolbox-eval (make-eval-factory '(db/sqlite3
+                                               racket/class
+                                               racket/draw
                                                racket/list
                                                racket/match
+                                               racket/math
                                                racket/string
                                                toolbox/boolean
                                                toolbox/box
+                                               toolbox/color
                                                toolbox/db/base
                                                toolbox/db/define
                                                toolbox/db/sql
@@ -120,6 +140,7 @@
                                                toolbox/list
                                                toolbox/logger
                                                toolbox/logging
+                                               toolbox/pict
                                                toolbox/printing-block
                                                toolbox/string
                                                toolbox/web/dispatch
