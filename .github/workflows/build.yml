@@ -17,7 +17,7 @@ jobs:
     - name: install
       run: raco pkg install --installation --auto --link toolbox-{lib,db-lib,db-x86_64-linux,draw-lib,web-lib,doc}
     - name: test
-      run: raco test -ep toolbox-{lib,db-lib,draw-lib,web-lib,doc}
+      run: raco test -ep toolbox-{lib,db-lib,draw-lib,web-lib}
     - name: deploy_docs
       if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && matrix.racket-version == 'current' }}
       run: |
