@@ -317,7 +317,7 @@ In addition to the bindings documented in this section, the @racketmodname[toolb
                     [maybe-name-id (code:line)
                                    name-id])
          #:contracts ([name-expr symbol?]
-                      [resolve-expr (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)]
+                      [resolve-expr (or/c (-> any/c #:who symbol? any/c) #f)]
                       [sql->racket-expr (-> any/c any/c)]
                       [racket->sql-expr (-> any/c any/c)])]{
 Defines functions for performing simple SQL queries against a SQL table.
@@ -359,7 +359,7 @@ If the @racket[#:resolve] table option is provided, the procedure produced by @r
 @defproc[(make-sql-deleter [#:table table-name symbol?]
                            [#:who who symbol?]
                            [#:resolve resolve-proc
-                            (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
+                            (or/c (-> any/c #:who symbol? any/c) #f)
                             #f])
          (->* [any/c] [#:who symbol? #:resolve? any/c] void?)]{
 Builds a deleter procedure that accepts a primary key for the SQL table given by @racket[table-name] and executes the following query:
@@ -374,7 +374,7 @@ The @racket[who] argument is used as the name of the deleter procedure, as retur
                           [#:field field-name symbol?]
                           [#:who who symbol?]
                           [#:resolve resolve-proc
-                           (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
+                           (or/c (-> any/c #:who symbol? any/c) #f)
                            #f]
                           [#:convert convert-proc (-> any/c any/c) values])
          (->* [any/c] [#:who symbol? #:resolve? any/c] any/c)]{
@@ -392,7 +392,7 @@ The @racket[who] argument is used as the name of the getter procedure, as return
                           [#:field field-name symbol?]
                           [#:who who symbol?]
                           [#:resolve resolve-proc
-                           (or/c (-> any/c #:who symbol? exact-positive-integer?) #f)
+                           (or/c (-> any/c #:who symbol? any/c) #f)
                            #f]
                           [#:convert convert-proc (-> any/c any/c) values])
          (->* [any/c any/c] [#:who symbol? #:resolve? any/c] void?)]{

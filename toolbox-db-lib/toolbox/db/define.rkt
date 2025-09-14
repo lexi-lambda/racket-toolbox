@@ -32,8 +32,7 @@
 
 ;; -----------------------------------------------------------------------------
 
-(define id/c exact-positive-integer?)
-(define resolver/c (or/c (-> any/c #:who symbol? id/c) #f))
+(define resolver/c (or/c (-> any/c #:who symbol? any/c) #f))
 (define convert/c (-> any/c any/c))
 
 (define (sqlite-statement who str)
