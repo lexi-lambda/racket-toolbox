@@ -16,7 +16,7 @@
          lifted-statement
          (contract-out
           [current-db (parameter/c (or/c connection? #f))]
-          [get-db (->* [symbol?] connection?)]
+          [get-db (->* [] [symbol?] connection?)]
 
           [exn:fail:sql:busy? predicate/c]
           [exn:fail:sql:constraint? predicate/c]
