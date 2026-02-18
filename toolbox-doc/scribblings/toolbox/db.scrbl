@@ -155,6 +155,24 @@ If @racket[analyze?] is not @racket[#f], the query plan is logged in the same wa
 @defqueryproc[query-value any/c]
 @defqueryproc[query-maybe-value any/c]
 
+@defproc[(in-query [stmt (or/c string? virtual-statement? prepared-statement?)]
+                   [arg any/c] ...
+                   [#:db db connection? (current-db)]
+                   [#:fetch fetch-size (or/c exact-positive-integer? +inf.0) +inf.0]
+                   [#:group groupings
+                    (let* ([field/c (or/c string? exact-nonnegative-integer?)]
+                           [grouping/c (or/c field/c (vectorof field/c))])
+                      (or/c grouping/c (listof grouping/c)))
+                    '()]
+                   [#:group-mode group-mode
+                    (listof (or/c 'preserve-null 'list))
+                    '()]
+                   [#:log? log? any/c (current-log-db-queries?)]
+                   [#:explain? explain? any/c (current-explain-db-queries?)]
+                   [#:analyze? analyze? any/c (current-analyze-db-queries?)])
+         sequence?]{
+@(make-query-proc-flow @id-from-db[in-query])}
+
 @defboolparam[current-log-db-queries? log? #:value #f]{
 A parameter that controls whether functions like @racket[query] should log each query’s SQL text; see the documentation for @racket[query] for details.}
 

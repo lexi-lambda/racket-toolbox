@@ -11,6 +11,7 @@
 (provide (all-from-out db/base)
          toolbox:db-logger
          lifted-statement
+         in-query
          (recontract-out
           exn:fail:sql:busy?
           exn:fail:sql:constraint?

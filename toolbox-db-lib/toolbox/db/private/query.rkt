@@ -1,8 +1,11 @@
 #lang racket/base
 
-(require racket/require
+(require (for-syntax racket/base
+                     syntax/parse)
+         racket/require
          (subtract-in db/base "base.rkt")
          (prefix-in db: db/base)
+         (only-in db/private/generic/functions2 [in-query-helper db:in-query-helper])
          racket/class
          racket/contract
          racket/match
@@ -23,7 +26,7 @@
           [query-rows (->* [(or/c string? virtual-statement? prepared-statement?)]
                            [#:db connection?
                             #:group groupings/c
-                            #:group-mode (listof (or/c 'preserve-null 'list))
+                            #:group-mode group-mode/c
                             #:log? any/c
                             #:explain? any/c
                             #:analyze? any/c]
@@ -35,7 +38,10 @@
           [query-value (query-func/c any/c)]
           [query-maybe-value (query-func/c any/c)]
 
-          [query-changes (->* [] [#:db connection?] exact-nonnegative-integer?)]))
+          [query-changes (->* [] [#:db connection?] exact-nonnegative-integer?)])
+
+         (rename-out
+          [in-query* in-query]))
 
 ;; -----------------------------------------------------------------------------
 
@@ -59,6 +65,8 @@
 (define field/c (or/c string? exact-nonnegative-integer?))
 (define grouping/c (or/c field/c (vectorof field/c)))
 (define groupings/c (or/c grouping/c (listof grouping/c)))
+(define group-mode/c (listof (or/c 'preserve-null 'list)))
+(define fetch-size/c (or/c exact-positive-integer? +inf.0))
 
 (define (do-query stmt query-proc
                   #:who who
@@ -159,7 +167,7 @@
      (really-do-query)]))
 
 (define/who (query stmt
-                   #:db [db (get-db 'query)]
+                   #:db [db (get-db who)]
                    #:log? [log? (current-log-db-queries?)]
                    #:explain? [explain? (current-explain-db-queries?)]
                    #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -173,7 +181,7 @@
    stmt (λ (stmt) (apply db:query db stmt args))))
 
 (define/who (query-exec stmt
-                        #:db [db (get-db 'query-exec)]
+                        #:db [db (get-db who)]
                         #:log? [log? (current-log-db-queries?)]
                         #:explain? [explain? (current-explain-db-queries?)]
                         #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -187,7 +195,7 @@
    stmt (λ (stmt) (apply db:query-exec db stmt args))))
 
 (define/who (query-rows stmt
-                        #:db [db (get-db 'query-rows)]
+                        #:db [db (get-db who)]
                         #:group [groupings '()]
                         #:group-mode [group-mode '()]
                         #:log? [log? (current-log-db-queries?)]
@@ -205,7 +213,7 @@
                          #:group-mode group-mode))))
 
 (define/who (query-list stmt
-                        #:db [db (get-db 'query-list)]
+                        #:db [db (get-db who)]
                         #:log? [log? (current-log-db-queries?)]
                         #:explain? [explain? (current-explain-db-queries?)]
                         #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -219,7 +227,7 @@
    stmt (λ (stmt) (apply db:query-list db stmt args))))
 
 (define/who (query-row stmt
-                       #:db [db (get-db 'query-row)]
+                       #:db [db (get-db who)]
                        #:log? [log? (current-log-db-queries?)]
                        #:explain? [explain? (current-explain-db-queries?)]
                        #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -233,7 +241,7 @@
    stmt (λ (stmt) (apply db:query-row db stmt args))))
 
 (define/who (query-maybe-row stmt
-                             #:db [db (get-db 'query-maybe-row)]
+                             #:db [db (get-db who)]
                              #:log? [log? (current-log-db-queries?)]
                              #:explain? [explain? (current-explain-db-queries?)]
                              #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -247,7 +255,7 @@
    stmt (λ (stmt) (apply db:query-maybe-row db stmt args))))
 
 (define/who (query-value stmt
-                         #:db [db (get-db 'query-value)]
+                         #:db [db (get-db who)]
                          #:log? [log? (current-log-db-queries?)]
                          #:explain? [explain? (current-explain-db-queries?)]
                          #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -261,7 +269,7 @@
    stmt (λ (stmt) (apply db:query-value db stmt args))))
 
 (define/who (query-maybe-value stmt
-                               #:db [db (get-db 'query-maybe-value)]
+                               #:db [db (get-db who)]
                                #:log? [log? (current-log-db-queries?)]
                                #:explain? [explain? (current-explain-db-queries?)]
                                #:analyze? [analyze? (current-analyze-db-queries?)]
@@ -273,6 +281,75 @@
    #:explain? explain?
    #:analyze? analyze?
    stmt (λ (stmt) (apply db:query-maybe-value db stmt args))))
+
+(define (in-query-helper stmt
+                         #:result-arity [expected-result-arity #f]
+                         #:db [db (get-db 'in-query)]
+                         #:fetch [fetch-size +inf.0]
+                         #:group [groupings '()]
+                         #:group-mode [group-mode '()]
+                         #:log? [log? (current-log-db-queries?)]
+                         #:explain? [explain? (current-explain-db-queries?)]
+                         #:analyze? [analyze? (current-analyze-db-queries?)]
+                         . args)
+  (do-query
+   #:who 'in-query
+   #:db db
+   #:log? log?
+   #:explain? explain?
+   #:analyze? analyze?
+   stmt (λ (stmt) (apply db:in-query-helper expected-result-arity db stmt args
+                         #:fetch fetch-size
+                         #:group groupings
+                         #:group-mode group-mode))))
+
+(define-module-boundary-contract in-query in-query-helper
+  (->* [connection? statement?]
+       [#:db connection?
+        #:fetch fetch-size/c
+        #:group groupings/c
+        #:group-mode group-mode/c
+        #:log? any/c
+        #:explain? any/c
+        #:analyze? any/c]
+       #:rest list?
+       sequence?)
+  #:name-for-blame in-query
+  #:name-for-contract in-query)
+
+;; This is mostly copied from its definition in `db/base` because
+;; `in-query-helper` is unfortunately a private API.
+(define-sequence-syntax in-query*
+  (λ () #'in-query)
+  (syntax-parser
+    [[(var ...) {~and form
+                      (_ {~alt {~optional {~seq #:db db}}
+                               {~optional {~seq #:fetch fetch-size}}
+                               {~optional {~seq #:group groupings}}
+                               {~optional {~seq #:group-mode group-mode}}
+                               {~optional {~seq #:log? log?:expr}}
+                               {~optional {~seq #:explain? explain?:expr}}
+                               {~optional {~seq #:analyze? analyze?:expr}}
+                               {~between arg:expr 1 +inf.0}}
+                         ...)}]
+     #:declare db (expr/c #'connection? #:context #'form) #:role "connection argument"
+     #:declare fetch-size (expr/c #'fetch-size/c #:context #'form) #:role "fetch size argument"
+     #:declare groupings (expr/c #'groupings/c #:context #'form) #:role "grouping fields argument"
+     #:declare group-mode (expr/c #'group-mode/c #:context #'form) #:role "group mode argument"
+     #:with [stmt q-arg ...] #'[arg ...]
+     #:declare stmt (expr/c #'statement? #:context #'form) #:role "statement argument"
+     #`[(var ...)
+        #,(quasisyntax/loc #'form
+            (in-query-helper stmt.c q-arg ...
+                             #:result-arity #,(length (attribute var))
+                             {~? {~@ #:db db.c}}
+                             {~? {~@ #:fetch fetch-size.c}}
+                             {~? {~@ #:group groupings.c}}
+                             {~? {~@ #:group-mode group-mode.c}}
+                             {~? {~@ #:log? log?}}
+                             {~? {~@ #:explain? explain?}}
+                             {~? {~@ #:analyze? analyze?}}))]]
+    [_ #f]))
 
 ;; -----------------------------------------------------------------------------
 
