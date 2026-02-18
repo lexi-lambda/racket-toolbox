@@ -8,7 +8,9 @@
 (define deps
   '("base"))
 (define build-deps
-  '("db-doc"
+  '("data-doc"
+    "data-lib"
+    "db-doc"
     "db-lib"
     "draw-doc"
     "draw-lib"

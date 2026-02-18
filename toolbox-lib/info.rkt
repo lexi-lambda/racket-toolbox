@@ -7,6 +7,7 @@
 
 (define deps
   '("base"
+    "data-lib"
     "gregor-lib"
     "mvar-lib"))
 (define build-deps

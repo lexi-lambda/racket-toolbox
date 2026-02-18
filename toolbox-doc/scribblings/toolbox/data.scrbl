@@ -4,7 +4,9 @@
           (only-in racket/base [box r:box])
           "private/common.rkt")
 
-@title[#:tag "data"]{Data Structures}
+@title[#:tag "data" #:style 'toc]{Data Structures}
+
+@local-table-of-contents[]
 
 @section[#:tag "boolean"]{Booleans}
 @defmodule[toolbox/boolean]
@@ -86,3 +88,5 @@ Equivalent to @racket[(if test-expr (let () body #,m...) "")], except that the l
 
 @defform[(unless/string test-expr body ...+)]{
 Equivalent to @racket[(if test-expr "" (let () body #,m...))], except that the last @racket[body] form must evaluate to a @reftech{string}, or an @racket[exn:fail:contract] exception is raised.}
+
+@include-section["data/order.scrbl"]

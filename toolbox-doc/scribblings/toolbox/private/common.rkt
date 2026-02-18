@@ -5,7 +5,8 @@
          scribble/manual
          scribble/example
          syntax/parse/define
-         (for-label (only-in db sqlite3-connect)
+         (for-label data/order
+                    (only-in db sqlite3-connect)
                     gregor
                     (except-in racket/base date? date)
                     racket/class
@@ -32,6 +33,7 @@
                     toolbox/list
                     toolbox/logger
                     toolbox/logging
+                    toolbox/order
                     toolbox/pict
                     toolbox/printing-block
                     toolbox/string
@@ -41,6 +43,7 @@
 
 (provide m...
          reftech
+         datatech
          dbtech
          drawtech
          pictech
@@ -49,7 +52,8 @@
          close-eval
          toolbox-examples
          toolbox-interaction
-         (for-label (all-from-out db
+         (for-label (all-from-out data/order
+                                  db
                                   gregor
                                   racket/base
                                   racket/class
@@ -76,6 +80,7 @@
                                   toolbox/list
                                   toolbox/logger
                                   toolbox/logging
+                                  toolbox/order
                                   toolbox/pict
                                   toolbox/printing-block
                                   toolbox/string
@@ -87,6 +92,8 @@
 
 (define (reftech #:key [key #f] . pre-content)
   (apply tech pre-content #:key key #:doc '(lib "scribblings/reference/reference.scrbl")))
+(define (datatech #:key [key #f] . pre-content)
+  (apply tech pre-content #:key key #:doc '(lib "data/scribblings/data.scrbl")))
 (define (dbtech #:key [key #f] . pre-content)
   (apply tech pre-content #:key key #:doc '(lib "db/scribblings/db.scrbl")))
 (define (drawtech #:key [key #f] . pre-content)
@@ -119,7 +126,8 @@
     (define-syntaxes [name-id id-from-name]
       (make-id-referencer-transformers (quote-syntax mod-name*)))))
 
-(define make-toolbox-eval (make-eval-factory '(db/sqlite3
+(define make-toolbox-eval (make-eval-factory '(data/order
+                                               db/sqlite3
                                                racket/class
                                                racket/draw
                                                racket/list
@@ -140,6 +148,7 @@
                                                toolbox/list
                                                toolbox/logger
                                                toolbox/logging
+                                               toolbox/order
                                                toolbox/pict
                                                toolbox/printing-block
                                                toolbox/string
