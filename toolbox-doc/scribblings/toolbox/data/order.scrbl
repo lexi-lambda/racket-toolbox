@@ -51,3 +51,29 @@ Returns an @order-object that orders lists lexicographically. The number of elem
                 (1 3) (1 2) (1 1) (1 0)
                 (2 3) (2 2) (2 1) (2 0)
                 (3 3) (3 2) (3 1) (3 0))))}
+
+@defproc[(property/o [accessor (-> any/c any/c)]
+                     [ord order?]
+                     [#:name name symbol? (if (symbol? (object-name accessor))
+                                              (object-name accessor)
+                                              'property)]
+                     [#:domain domain-ctc contract? any/c])
+         order?]{
+Returns an @order-object that orders values by applying @racket[accessor] to both arguments, then ordering the results using @racket[ord]. In other words, @racket[property/o] is to @order-objects as @racket[property/c] is to @reftech{contracts}.
+
+@(toolbox-examples
+  (define length/o (property/o length real/o #:domain list?))
+  (eval:check (length/o '(1 2) '(3)) '>)
+  (eval:check (length/o '(1 2) '(3 4)) '=)
+  (eval:check (length/o '(1 2) '(3 4 5)) '<))}
+
+@defproc[(lexico/o [ord order?] ...) order?]{
+@margin-note{This is similar to @racket[list/o], but all of the given @order-objects are applied to the same values rather than to successive pairs of list elements.}
+Returns an @order-object that orders values lexicographically. The given @racket[ord] objects are applied from left to right to each pair of values to be compared, returning the first non-@racket['=] result, or @racket['=] if all @racket[ord] objects return @racket['=].
+
+@(toolbox-examples
+  (define length-then-alphabetical
+    (lexico/o (property/o string-length real/o) datum/o))
+  (eval:check (sort '("the" "quick" "brown" "fox" "jumps" "over" "the" "lazy" "dog")
+                    (order-<? length-then-alphabetical))
+              '("dog" "fox" "the" "the" "lazy" "over" "brown" "jumps" "quick")))}

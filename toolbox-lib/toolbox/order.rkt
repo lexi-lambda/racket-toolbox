@@ -18,7 +18,13 @@
           [order->=? (-> order? (-> any/c any/c ordering/c))]
           [order-<>? (-> order? (-> any/c any/c ordering/c))]
 
-          [list/o (-> order? ... order?)]))
+          [lexico/o (-> order? ... order?)]
+          [list/o (-> order? ... order?)]
+          [property/o (->* [(-> any/c any/c)
+                            order?]
+                           [#:name symbol?
+                            #:domain contract?]
+                           order?)]))
 
 ;; -----------------------------------------------------------------------------
 
@@ -27,6 +33,9 @@
     ['< '>]
     ['= '=]
     ['> '<]))
+
+(define (lexico-ordering a b-thunk)
+  (if (eq? a '=) (b-thunk) a))
 
 ;; -----------------------------------------------------------------------------
 
@@ -60,6 +69,16 @@
 
 ;; -----------------------------------------------------------------------------
 
+(define/who (lexico/o . os)
+  (define comparators (map order-comparator os))
+  (order
+   who
+   (apply and/c (map order-domain-contract os))
+   (λ (a b)
+     (for/foldr ([continue '=] #:delay-with thunk)
+                ([comparator (in-list comparators)])
+       (lexico-ordering (comparator a b) continue)))))
+
 (define/who (list/o . elem-os)
   (define num-elems (length elem-os))
 
@@ -83,6 +102,15 @@
                 ([comparator (in-list comparators)]
                  [a (in-list as)]
                  [b (in-list bs)])
-       (match (comparator a b)
-         ['= (continue)]
-         [result result])))))
+       (lexico-ordering (comparator a b) continue)))))
+
+(define/who (property/o accessor o
+                        #:name [name (if (symbol? (object-name accessor))
+                                         (object-name accessor)
+                                         who)]
+                        #:domain [domain-ctc any/c])
+  (define compare (order-comparator o))
+  (order
+   name
+   domain-ctc
+   (λ (a b) (compare (accessor a) (accessor b)))))
