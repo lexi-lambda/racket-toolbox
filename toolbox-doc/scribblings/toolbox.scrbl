@@ -13,6 +13,7 @@ This library provides a collection of miscellaneous Racket utilities that I use 
 @include-section["toolbox/data.scrbl"]
 @include-section["toolbox/logging.scrbl"]
 @include-section["toolbox/format.scrbl"]
+@include-section["toolbox/print.scrbl"]
 
 @section[#:tag "gregor"]{Gregor}
 @defmodule[toolbox/gregor]

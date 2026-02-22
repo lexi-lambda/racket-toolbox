@@ -18,6 +18,7 @@
                     racket/logging
                     racket/match
                     racket/math
+                    racket/pretty
                     racket/string
                     toolbox/boolean
                     toolbox/box
@@ -35,6 +36,7 @@
                     toolbox/logging
                     toolbox/order
                     toolbox/pict
+                    toolbox/print
                     toolbox/printing-block
                     toolbox/string
                     toolbox/web/dispatch
@@ -65,6 +67,7 @@
                                   racket/logging
                                   racket/match
                                   racket/math
+                                  racket/pretty
                                   racket/string
                                   toolbox/boolean
                                   toolbox/box
@@ -82,6 +85,7 @@
                                   toolbox/logging
                                   toolbox/order
                                   toolbox/pict
+                                  toolbox/print
                                   toolbox/printing-block
                                   toolbox/string
                                   toolbox/web/dispatch
@@ -130,9 +134,11 @@
                                                db/sqlite3
                                                racket/class
                                                racket/draw
+                                               racket/format
                                                racket/list
                                                racket/match
                                                racket/math
+                                               racket/pretty
                                                racket/string
                                                toolbox/boolean
                                                toolbox/box
@@ -150,6 +156,7 @@
                                                toolbox/logging
                                                toolbox/order
                                                toolbox/pict
+                                               toolbox/print
                                                toolbox/printing-block
                                                toolbox/string
                                                toolbox/web/dispatch
