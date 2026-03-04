@@ -304,7 +304,7 @@
                          #:group-mode group-mode))))
 
 (define-module-boundary-contract in-query in-query-helper
-  (->* [connection? statement?]
+  (->* [statement?]
        [#:db connection?
         #:fetch fetch-size/c
         #:group groupings/c
