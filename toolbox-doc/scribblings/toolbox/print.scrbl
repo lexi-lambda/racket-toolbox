@@ -65,6 +65,26 @@ Returns a value that prints like a structure with @racket[proc] as its @tech{cus
          (λ (out mode)
            (write/mode "never quoted" out mode)))))}
 
+@defproc[(multiline-printing-string [str string?]
+                                    [#:indent-blank? indent-blank? any/c #f]
+                                    [#:indent-trailing? indent-trailing? any/c indent-blank?])
+         any/c]{
+Returns a value that prints like @racket[(unquoted-printing-string str)], except that when @reftech{line location} and @reftech{column location} counting has been enabled for an output port, spaces are inserted after each printed @racket[#\newline] character to align each subsequent line with the first.
+
+@(toolbox-examples
+  (list 'prefix: (multiline-printing-string "hello,\nworld!")))
+
+The @racket[indent-blank?] and @racket[indent-trailing?] arguments control whether empty lines should be indented. If @racket[indent-blank?] is @racket[#f] (the default), then spaces are not inserted after newline characters followed immediately by another newline. This is generally the desired behavior, as such lines would otherwise consist entirely of invisible space characters.
+
+Separately, @racket[indent-trailing?] controls whether spaces should be inserted after a newline if it is the last character in @racket[str]. By default, the @racket[indent-trailing?] argument is simply the value of @racket[indent-blank?], but it can be configured separately because it can be useful if further printing follows the printed string that should be similarly indented.
+
+@(toolbox-examples
+  (list 'prefix: (multiline-printing-string "hello,\nworld!\n"))
+  (list 'prefix: (multiline-printing-string "hello,\nworld!\n"
+                                            #:indent-trailing? #t)))
+
+Note that, unlike some of the other functions provided by this module, the way a value returned by @racket[multiline-printing-string] is printed does @emph{not} depend on the value of the @racket[pretty-printing] parameter, only on the result of @racket[port-counts-lines?]. However, when @tech{pretty printing}, @racket[multiline-printing-string] will additionally cooperate with the pretty printer by using @racket[pretty-print-newline] to print newline characters.}
+
 @defproc[(printing-append [v any/c] ...) any/c]{
 Returns a value that prints as each @racket[v] printed immediately after the other, with no separation between them.
 
@@ -97,7 +117,7 @@ Returns a value that prints like a structure that uses @racket[make-constructor-
 
 @section[#:tag "print:pretty"]{Cooperating with @racketmodname[racket/pretty]}
 
-The bindings in this section assist in writing @tech{custom write procedures} that automatically adapt when @deftech{pretty printing} via @racketmodname[racket/pretty]. Specifically, when @racket[(pretty-printing)] is @racket[#t] and @reftech{line location} and @reftech{column location} has been enabled for an output port, they may break their printed output over multiple lines to avoid exceeding the target column width controlled by @racket[pretty-print-columns].
+The bindings in this section assist in writing @tech{custom write procedures} that automatically adapt when @deftech{pretty printing} via @racketmodname[racket/pretty]. Specifically, when @racket[(pretty-printing)] is @racket[#t] and @reftech{line location} and @reftech{column location} counting has been enabled for an output port, they may break their printed output over multiple lines to avoid exceeding the target column width controlled by @racket[pretty-print-columns].
 
 @defproc[(printing-sequence [vs list?]
                             [#:space-after space-after exact-nonnegative-integer? 0]

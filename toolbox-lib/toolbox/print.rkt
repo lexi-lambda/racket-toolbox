@@ -4,6 +4,7 @@
          racket/contract
          racket/match
          racket/pretty
+         racket/string
          (only-in syntax/parse ~seq)
          syntax/parse/define
          threading)
@@ -18,6 +19,10 @@
           [custom-printing-value (->* [(-> output-port? custom-write-mode/c any)]
                                       [#:quotable (or/c 'self 'never 'always 'maybe)]
                                       any/c)]
+          [multiline-printing-string (->* [string?]
+                                          [#:indent-blank? any/c
+                                           #:indent-trailing? any/c]
+                                          any/c)]
 
           [with-printing-overflow-handler (->* [output-port?
                                                 (-> output-port? any)
@@ -120,6 +125,51 @@
                        (sub1 n))
            out)
           (void)]))]))
+
+(define (multiline-printing-string base-str
+                                   #:indent-blank? [indent-blank?* #f]
+                                   #:indent-trailing? [indent-trailing?* indent-blank?*])
+  (cond
+    [(string=? base-str "")
+     (unquoted-printing-string "")]
+    [else
+     (define indent-blank? (and indent-blank?* #t))
+     (define indent-trailing? (and indent-trailing?* #t))
+     (define-values [str add-newline?]
+       (if (or (and indent-blank? indent-trailing?)
+               (not (string-suffix? base-str "\n")))
+           (values base-str #f)
+           (values (string-trim base-str "\n" #:left? #f) #t)))
+     (custom-printing-value
+      (λ (out mode)
+        (cond
+          [(port-counts-lines? out)
+           (define-values [line col posn] (port-next-location out))
+           (define write-newline
+             (cond
+               [(pretty-printing)
+                (match (pretty-print-columns)
+                  ['infinity newline]
+                  [width (λ (out) (pretty-print-newline out width))])]
+               [else newline]))
+
+           (match-define (cons line-str line-strs) (string-split str "\n" #:trim? #f))
+           (write-string line-str out)
+           (for ([line-str (in-list line-strs)])
+             (write-newline out)
+             (when (or indent-blank? (not (string=? line-str "")))
+               (write-spaces col out))
+             (write-string line-str out))
+           (when add-newline?
+             (write-newline out)
+             (when indent-trailing?
+               (write-spaces col out)))]
+          [else
+           (write-string str out)
+           (when add-newline?
+             (newline out))])))]))
+
+;; -----------------------------------------------------------------------------
 
 (define (with-printing-overflow-handler out
           #:width [width (pretty-print-columns)]
