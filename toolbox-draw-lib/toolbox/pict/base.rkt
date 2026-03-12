@@ -200,7 +200,7 @@
   (send path translate 1 1)
   (send path scale (/ size 2) (/ size 2))
 
-  (~> (dc (λ (dc x y) (send dc draw-path path x y)) size size)
+  (~> (unsafe-dc (λ (dc x y) (send dc draw-path path x y)) size size)
       (set-pen #:style 'transparent)
       (set-brush #:color 'pen #:style 'solid)))
 
@@ -305,16 +305,16 @@
 
 (define (dc/wrap p proc)
   (define draw-p (make-pict-drawer p))
-  (struct-copy
-   pict
-   (dc (λ (dc dx dy)
-         (proc draw-p dc dx dy))
-       (pict-width p)
-       (pict-height p)
-       (pict-ascent p)
-       (pict-descent p))
-   [children (list (make-child p 0 0 1 1 0 0))]
-   [last (pict-last p)]))
+  (struct-copy pict
+    (unsafe-dc
+     (λ (dc dx dy)
+       (proc draw-p dc dx dy))
+     (pict-width p)
+     (pict-height p)
+     (pict-ascent p)
+     (pict-descent p))
+    [children (list (make-child p 0 0 1 1 0 0))]
+    [last (pict-last p)]))
 
 (define (set-smoothing p smoothing)
   (dc/wrap
@@ -477,10 +477,11 @@
   (define p2-dy (- h (+ p2-y (pict-height p2))))
   (define p2-last-dy (- h (+ p2-y p2-last-y (pict-height p2-last))))
 
-  (~> (dc (λ (dc dx dy)
-            (draw-p1 dc (+ dx p1-x) (+ dy p1-y))
-            (draw-p2 dc (+ dx p2-x) (+ dy p2-y)))
-          w h a d)
+  (~> (unsafe-dc
+       (λ (dc dx dy)
+         (draw-p1 dc (+ dx p1-x) (+ dy p1-y))
+         (draw-p2 dc (+ dx p2-x) (+ dy p2-y)))
+       w h a d)
       (struct-copy pict _
                    [children (list (make-child p1 p1-x p1-dy 1 1 0 0)
                                    (make-child p2 p2-x p2-dy 1 1 0 0)
