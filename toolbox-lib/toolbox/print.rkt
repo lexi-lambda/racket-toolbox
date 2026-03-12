@@ -24,6 +24,7 @@
                                            #:indent-trailing? any/c]
                                           any/c)]
 
+          [install-pretty-print-handler! (-> void?)]
           [with-printing-overflow-handler (->* [output-port?
                                                 (-> output-port? any)
                                                 (-> (->* [output-port? exact-positive-integer?] void?) any)]
@@ -170,6 +171,13 @@
              (newline out))])))]))
 
 ;; -----------------------------------------------------------------------------
+
+(define (install-pretty-print-handler!)
+  (global-port-print-handler
+   (λ (v out [depth 0])
+     (pretty-print v out depth #:newline? #f)))
+  (port-count-lines! (current-output-port))
+  (port-count-lines! (current-error-port)))
 
 (define (with-printing-overflow-handler out
           #:width [width (pretty-print-columns)]

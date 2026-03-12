@@ -172,6 +172,9 @@ Returns a value that prints like @racket[herald] followed by @racket[body]. When
      because-it-is-too-long
      and-the-lines-are-indented)))}
 
+@defproc[(install-pretty-print-handler!) void?]{
+Configures the @reftech{global port print handler} to use @racket[pretty-print] and enables @reftech{line location} and @reftech{column location} counting on @racket[(current-output-port)] and @racket[(current-error-port)]. Use this at the start of the main module of a program to configure @racket[print] to use the pretty printer by default.}
+
 @subsection{Printing unquoted expressions}
 
 @defform[#:literals [unquote unquote-splicing ~seq ~@ ~if]
