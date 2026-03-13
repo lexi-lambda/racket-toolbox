@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="56" height="36" viewBox="0 0 56 36">
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 3 3 L 53 3 L 53 33 L 3 33 Z M 3 3 "/>
+<path fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-dasharray="6 6" stroke-dashoffset="2" stroke-miterlimit="10" d="M 0.5 0.5 L 49.5 0.5 L 49.5 29.5 L 0.5 29.5 Z M 0.5 0.5 " transform="matrix(1, 0, 0, 1, 3, 3)"/>
+</svg>
