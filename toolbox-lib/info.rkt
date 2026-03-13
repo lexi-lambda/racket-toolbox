@@ -9,6 +9,7 @@
   '("base"
     "data-lib"
     "gregor-lib"
-    "mvar-lib"))
+    "mvar-lib"
+    "threading-lib"))
 (define build-deps
   '())
