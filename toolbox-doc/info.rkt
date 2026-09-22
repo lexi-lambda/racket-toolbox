@@ -22,7 +22,7 @@
     "racket-doc"
     "scribble-doc"
     "scribble-lib"
-    ["toolbox-db-lib" #:version "1.0"]
+    ["toolbox-db-lib" #:version "1.1"]
     ["toolbox-draw-lib" #:version "1.0"]
     ["toolbox-lib" #:version "1.0"]
     ["toolbox-web-lib" #:version "1.0"]

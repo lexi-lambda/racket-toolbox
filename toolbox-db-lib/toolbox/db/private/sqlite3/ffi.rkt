@@ -4,7 +4,10 @@
          ffi/unsafe
          racket/match)
 
-(provide sqlite3_statement?
+(provide sqlite3_keyword_count
+         sqlite3_keyword_name
+
+         sqlite3_statement?
          sqlite3_reset
 
          SQLITE_EXPLAIN_NORMAL
@@ -31,6 +34,25 @@
 
          sqlite3-stmt-scanstatus-enabled?
          check-sqlite3-stmt-scanstatus-enabled)
+
+;; -----------------------------------------------------------------------------
+
+(define-sqlite sqlite3_keyword_count
+  (_fun -> _int))
+
+(define-sqlite sqlite3_keyword_name
+  (_fun [index : _int]
+        [keyword-bs-ptr : (_ptr o _pointer)]
+        [keyword-len : (_ptr o _int)]
+        -> [result : _int]
+        -> (cond
+             [(= result SQLITE_OK)
+              (define keyword-bs (make-bytes keyword-len))
+              (memcpy keyword-bs keyword-bs-ptr keyword-len)
+              (bytes->string/utf-8 keyword-bs)]
+             [else
+              (raise-arguments-error 'sqlite3_keyword_name "keyword index out of range"
+                                     "index" index)])))
 
 ;; -----------------------------------------------------------------------------
 

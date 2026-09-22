@@ -236,12 +236,30 @@ Example:
          #:contracts ([expr pre-sql?])]{
 Equivalent to @racket[(lifted-statement (~sql expr #,m...))]. The @racket[expr] forms may not reference local variables.}
 
-@defproc[(sql:id [name (or/c symbol? string?)]) string?]{
+@defproc[(sql:id [name (or/c symbol? string?)]
+                 [#:keywords keywords (or/c (listof string?) #f) (current-sql-keywords)])
+         string?]{
 Quotes @racket[name] as a SQL identifier by surrounding it with double quotes. If @racket[name] contains double quotes, they are escaped by doubling.
 
 @(toolbox-examples
   (eval:check (sql:id "hello") "\"hello\"")
-  (eval:check (sql:id "weird\"id") "\"weird\"\"id\""))}
+  (eval:check (sql:id "weird\"id") "\"weird\"\"id\""))
+
+If @racket[keywords] is not @racket[#f], quoting is suppressed for any valid SQL identifiers not in the supplied @racket[keywords] list (compared using @racket[string-ci=?]). If using SQLite, @racket[current-sql-keywords] can be set to @racket[(sqlite3-keywords)] to safely disable quoting of non-keyword identifiers:
+
+@(toolbox-interaction
+  (current-sql-keywords (sqlite3-keywords))
+  (eval:check (sql:id "hello") "hello")
+  (eval:check (sql:id "select") "\"select\""))
+
+@history[#:changed "1.1" @elem{Added the @racket[#:keywords] argument.}]}
+
+@defparam[current-sql-keywords keywords (or/c (listof string?) #f) #:value #f]{
+A parameter used by functions like @racket[sql:id] and @racket[~sql] to determine if an identifier must be quoted. The default value of @racket[#f] assumes all identifiers are keywords.
+
+If using SQLite, this parameter can safely be set to @racket[(sqlite3-keywords)].
+
+@history[#:added "1.1"]}
 
 @defproc[(sql:string [name (or/c symbol? string?)]) string?]{
 Quotes @racket[name] as a SQL string literal by surrounding it with single quotes. If @racket[name] contains single quotes, they are escaped by doubling.
@@ -429,6 +447,11 @@ The @racket[who] argument is used as the name of the setter procedure, as return
 
 @defproc[(sqlite3-stmt-scanstatus-enabled?) boolean?]{
 Returns @racket[#t] if the loaded SQLite library was compiled with @tt{SQLITE_ENABLE_STMT_SCANSTATUS}, which is required if query profiling is enabled in @racket[query] via the @racket[#:analyze?] option. Otherwise, returns @racket[#f].}
+
+@defproc[(sqlite3-keywords) (listof string?)]{
+Returns the list of reserved keywords returned by the loaded SQLite library. If using SQLite, @racket[current-sql-keywords] can be set to @racket[(sqlite3-keywords)] to disable unnecessary quoting of non-keyword identifiers.
+
+@history[#:added "1.1"]}
 
 @defproc[(boolean->integer [v any/c]) (or/c 0 1)]{
 If @racket[v] is @racket[#f], returns @racket[0], otherwise returns @racket[1].}

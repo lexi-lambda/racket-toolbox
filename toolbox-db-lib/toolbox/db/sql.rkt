@@ -14,7 +14,10 @@
 
 (provide ~stmt
          (contract-out
-          [sql:id (-> (or/c symbol? string?) string?)]
+          [current-sql-keywords (parameter/c (or/c (listof string?) #f))]
+          [sql:id (->* [(or/c symbol? string?)]
+                       [#:keywords (or/c (listof string?) #f)]
+                       string?)]
           [sql:string (-> string? string?)]
 
           [pre-sql? predicate/c]
@@ -32,10 +35,20 @@
 
 ;; -----------------------------------------------------------------------------
 
-(define (sql:id v)
-  (~> (if (symbol? v) (symbol->string v) v)
-      (string-replace "\"" "\"\"")
-      (string-append "\"" _ "\"")))
+(define current-sql-keywords (make-parameter #f))
+
+(define (sql:id v #:keywords [keywords (current-sql-keywords)])
+  (define str (if (symbol? v) (symbol->string v) v))
+
+  (define needs-quote?
+    (or (not keywords)
+        (member str keywords string-ci=?)
+        (not (regexp-match? #px"^[a-zA-Z_][a-zA-Z0-9_]*$" str))))
+
+  (if needs-quote?
+      (~> (string-replace str "\"" "\"\"")
+          (string-append "\"" _ "\""))
+      str))
 
 (define (sql:string str)
   (~> (string-replace str "'" "''")

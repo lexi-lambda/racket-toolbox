@@ -3,16 +3,18 @@
 (require gregor
          racket/contract
          racket/match
+         racket/set
          "private/sqlite3/ffi.rkt")
 
 (provide (contract-out
-          [sqlite3-stmt-scanstatus-enabled? (-> boolean?)]
-
           [boolean->integer (-> any/c (or/c 0 1))]
           [integer->boolean (-> (or/c 0 1) boolean?)]
 
           [->posix/integer (-> datetime-provider? exact-integer?)]
-          [->jd/double (-> datetime-provider? (and/c rational? flonum?))]))
+          [->jd/double (-> datetime-provider? (and/c rational? flonum?))]
+
+          [sqlite3-stmt-scanstatus-enabled? (-> boolean?)]
+          [sqlite3-keywords (-> (listof string?))]))
 
 ;; -----------------------------------------------------------------------------
 
@@ -27,3 +29,9 @@
 
 (define (->jd/double v)
   (real->double-flonum (->jd v)))
+
+;; -----------------------------------------------------------------------------
+
+(define (sqlite3-keywords)
+  (for/list ([i (in-range (sqlite3_keyword_count))])
+    (sqlite3_keyword_name i)))
